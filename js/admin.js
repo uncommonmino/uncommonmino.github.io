@@ -23,9 +23,9 @@ import {
   orderBy, 
   serverTimestamp,
   isConfigured
-} from "./firebase-config.js";
+} from "./firebase-config.js?v=2.1.0";
 
-import { parseVideoUrl } from "./videoParser.js";
+import { parseVideoUrl } from "./videoParser.js?v=2.1.0";
 
 // ============================================================================
 // STATE

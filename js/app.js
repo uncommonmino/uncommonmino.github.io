@@ -12,9 +12,9 @@ import {
   orderBy, 
   isConfigured, 
   DEFAULT_SAMPLE_VIDEOS 
-} from "./firebase-config.js";
+} from "./firebase-config.js?v=2.1.0";
 
-import { parseVideoUrl, createTheaterEmbed } from "./videoParser.js";
+import { parseVideoUrl, createTheaterEmbed } from "./videoParser.js?v=2.1.0";
 
 // State
 let allVideos = [];
@@ -462,6 +462,18 @@ export function openTheater(videoId) {
   theaterContent.innerHTML = createTheaterEmbed(video);
   theaterModal.querySelectorAll(".play-button-overlay").forEach(el => el.remove());
 
+  // Enforce Mobile Iframe Scaling Directly in DOM for Google Drive embeds
+  const isMobile = window.innerWidth <= 768;
+  const isGdrive = (video.videoUrl && String(video.videoUrl).includes("drive.google.com"));
+  const iframe = theaterContent.querySelector("iframe");
+  if (iframe) {
+    if (isMobile && isGdrive) {
+      iframe.style.cssText = "width: 250% !important; height: 250% !important; transform: scale(0.4) !important; transform-origin: top left !important; position: absolute !important; top: 0 !important; left: 0 !important; border: 0 !important;";
+    } else {
+      iframe.style.cssText = "width: 100%; height: 100%; border: 0;";
+    }
+  }
+
   if (theaterPlaylistContainer) {
     theaterPlaylistContainer.innerHTML = "";
     theaterPlaylistContainer.classList.add("hidden");
@@ -493,6 +505,18 @@ export function openClientTheater(groupId, specificIndex = null) {
 
   theaterContent.innerHTML = createTheaterEmbed(video);
   theaterModal.querySelectorAll(".play-button-overlay").forEach(el => el.remove());
+
+  // Enforce Mobile Iframe Scaling Directly in DOM for Google Drive embeds
+  const isMobile = window.innerWidth <= 768;
+  const isGdrive = (video.videoUrl && String(video.videoUrl).includes("drive.google.com"));
+  const iframe = theaterContent.querySelector("iframe");
+  if (iframe) {
+    if (isMobile && isGdrive) {
+      iframe.style.cssText = "width: 250% !important; height: 250% !important; transform: scale(0.4) !important; transform-origin: top left !important; position: absolute !important; top: 0 !important; left: 0 !important; border: 0 !important;";
+    } else {
+      iframe.style.cssText = "width: 100%; height: 100%; border: 0;";
+    }
+  }
 
   if (theaterPlaylistContainer) {
     if (group.videos.length > 1) {

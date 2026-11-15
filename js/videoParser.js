@@ -61,7 +61,7 @@ export function parseVideoUrl(url, explicitAspectRatio = null) {
   }
 
   // 4. Google Drive (e.g., https://drive.google.com/file/d/FILE_ID/view...)
-  const gdriveMatch = cleanUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i);
+  const gdriveMatch = cleanUrl.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([a-zA-Z0-9_-]+)/i);
   if (gdriveMatch) {
     const fileId = gdriveMatch[1];
     return {
@@ -124,10 +124,17 @@ export function createTheaterEmbed(videoData) {
     `;
   }
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const isGdrive = parsed.type === 'gdrive' || (videoData.videoUrl && String(videoData.videoUrl).includes('drive.google.com')) || (parsed.embedUrl && parsed.embedUrl.includes('drive.google.com'));
+  const mobileScaleStyle = (isMobile && isGdrive)
+    ? 'width: 250% !important; height: 250% !important; transform: scale(0.4) !important; transform-origin: top left !important; position: absolute !important; top: 0 !important; left: 0 !important; border: 0 !important;'
+    : 'width: 100%; height: 100%; border: 0;';
+
   return `
     <div class="theater-embed-stage modal-video-container relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
       <iframe 
         src="${parsed.embedUrl}" 
+        style="${mobileScaleStyle}"
         class="absolute inset-0 w-full h-full border-0" 
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
         allowfullscreen 
