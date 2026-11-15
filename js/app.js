@@ -697,11 +697,42 @@ export function initFloatingMenu() {
       closeMenu();
     }
   });
+
+  // Close menu and handle internal anchors inside popover
+  popover.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", (e) => {
+      closeMenu();
+      const href = link.getAttribute("href");
+      if (href === "#contact") {
+        e.preventDefault();
+        scrollToContact(true);
+      }
+    });
+  });
 }
 
 // ============================================================================
-// 10. CONTACT BENTO PILLS (1-CLICK COPY & MAILTO)
+// 10. CONTACT BENTO PILLS (1-CLICK COPY & MAILTO) & SMOOTH SCROLLING
 // ============================================================================
+export function scrollToContact(triggerPulse = true) {
+  const contactSection = document.getElementById("contact");
+  if (!contactSection) return;
+
+  contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (triggerPulse) {
+    const bentoCard = contactSection.querySelector(".bento-card") || contactSection;
+    bentoCard.classList.remove("contact-pulse-glow");
+    void bentoCard.offsetWidth; // Force layout reflow
+    bentoCard.classList.add("contact-pulse-glow");
+    setTimeout(() => {
+      bentoCard.classList.remove("contact-pulse-glow");
+    }, 1200);
+  }
+}
+
+window.scrollToContact = scrollToContact;
+
 export function initContactPills() {
   const emailPill = document.getElementById("email-contact-pill");
   const copyBtn = document.getElementById("copy-email-action-btn");
@@ -761,6 +792,35 @@ async function bootstrapApp() {
   initFloatingMenu();
   initHowIWorkStepper();
   initContactPills();
+
+  // Modal "Inquire about a video project →" link: closes player & glides to contact
+  const modalInquireLink = document.getElementById("modal-inquire-link");
+  if (modalInquireLink) {
+    modalInquireLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeTheater();
+      setTimeout(() => {
+        scrollToContact(true);
+      }, 50);
+    });
+  }
+
+  // Hero "Book a call" CTA button
+  const heroBookCallBtn = document.getElementById("hero-book-call-btn");
+  if (heroBookCallBtn) {
+    heroBookCallBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      scrollToContact(true);
+    });
+  }
+
+  // Footer "Contact" links
+  document.querySelectorAll('footer a[href="#contact"]').forEach(link => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      scrollToContact(true);
+    });
+  });
 
   const videos = await loadVideos();
 
