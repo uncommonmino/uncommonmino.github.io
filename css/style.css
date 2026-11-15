@@ -362,8 +362,20 @@ body {
     aspect-ratio: 16 / 9 !important;
   }
 
-  /* Ensure iframes and videos fill the container cleanly */
-  .theater-embed-stage iframe,
+  /* High-DPI Iframe Scale-Down Trick on Mobile (Prevents Google Drive oversized mobile HUD) */
+  #theater-modal iframe,
+  .modal-video-container iframe,
+  .theater-embed-stage iframe {
+    width: 200% !important;
+    height: 200% !important;
+    transform: scale(0.5) !important;
+    transform-origin: top left !important;
+    border: 0 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+
   .theater-embed-stage video {
     width: 100% !important;
     height: 100% !important;

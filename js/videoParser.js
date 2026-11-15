@@ -110,7 +110,7 @@ export function createTheaterEmbed(videoData) {
 
   if (parsed.isDirect) {
     return `
-      <div class="theater-embed-stage relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
+      <div class="theater-embed-stage modal-video-container relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
         <video 
           src="${parsed.embedUrl}" 
           class="w-full h-full object-contain" 
@@ -125,7 +125,7 @@ export function createTheaterEmbed(videoData) {
   }
 
   return `
-    <div class="theater-embed-stage relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
+    <div class="theater-embed-stage modal-video-container relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
       <iframe 
         src="${parsed.embedUrl}" 
         class="absolute inset-0 w-full h-full border-0" 
