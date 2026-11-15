@@ -316,5 +316,81 @@ body {
   input, select, textarea {
     font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
   }
+
+  /* ======================================================================== */
+  /* Mobile-Only Theater Modal & Video Player Optimization                    */
+  /* ======================================================================== */
+  #theater-modal {
+    padding: 10px !important;
+  }
+
+  .theater-modal-card {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: 92dvh !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    border-radius: 20px !important;
+  }
+
+  /* Video Stage full width on mobile */
+  #theater-content {
+    width: 100% !important;
+  }
+
+  .theater-embed-stage {
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* 9:16 Vertical Video Container: full width, max-height 72dvh, aspect 9/16 */
+  .theater-embed-vertical {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 72dvh !important;
+    aspect-ratio: 9 / 16 !important;
+  }
+
+  /* 16:9 Horizontal Video Container: full width, aspect 16/9 */
+  .theater-embed-horizontal {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 60dvh !important;
+    aspect-ratio: 16 / 9 !important;
+  }
+
+  /* Ensure iframes and videos fill the container cleanly */
+  .theater-embed-stage iframe,
+  .theater-embed-stage video {
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+  }
+
+  /* Hide Desktop Keyboard Hints on mobile screens */
+  .modal-desktop-hints {
+    display: none !important;
+  }
+
+  /* Center the modal footer link cleanly on mobile */
+  .modal-footer-wrapper {
+    justify-content: center !important;
+    text-align: center !important;
+    padding-top: 6px !important;
+  }
+
+  .modal-footer-wrapper a {
+    text-align: center !important;
+    font-size: 13px !important;
+  }
+
+  /* Prevent any custom play/pause overlay inside Theater Modal */
+  #theater-modal .play-button-overlay {
+    display: none !important;
+    pointer-events: none !important;
+  }
 }
 

@@ -460,6 +460,7 @@ export function openTheater(videoId) {
   if (modalCategory) modalCategory.textContent = video.category || 'Production';
 
   theaterContent.innerHTML = createTheaterEmbed(video);
+  theaterModal.querySelectorAll(".play-button-overlay").forEach(el => el.remove());
 
   if (theaterPlaylistContainer) {
     theaterPlaylistContainer.innerHTML = "";
@@ -491,6 +492,7 @@ export function openClientTheater(groupId, specificIndex = null) {
   if (modalCategory) modalCategory.textContent = `${group.category} • Episode ${String(activeIdx + 1).padStart(2, '0')} of ${String(group.videos.length).padStart(2, '0')}`;
 
   theaterContent.innerHTML = createTheaterEmbed(video);
+  theaterModal.querySelectorAll(".play-button-overlay").forEach(el => el.remove());
 
   if (theaterPlaylistContainer) {
     if (group.videos.length > 1) {

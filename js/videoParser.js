@@ -105,18 +105,19 @@ export function createTheaterEmbed(videoData) {
   const parsed = parseVideoUrl(videoData.videoUrl, videoData.aspectRatio);
   const isVertical = (videoData.aspectRatio === '9:16' || parsed.aspectRatio === '9:16');
   const containerAspect = isVertical 
-    ? 'max-w-[320px] max-h-[52dvh] sm:max-h-[62vh] aspect-[9/16]' 
-    : 'max-w-4xl aspect-[16/9]';
+    ? 'theater-embed-vertical sm:max-w-[320px] sm:max-h-[62vh] aspect-[9/16]' 
+    : 'theater-embed-horizontal max-w-4xl aspect-[16/9]';
 
   if (parsed.isDirect) {
     return `
-      <div class="relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
+      <div class="theater-embed-stage relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
         <video 
           src="${parsed.embedUrl}" 
           class="w-full h-full object-contain" 
           controls 
           autoplay 
-          playsinline>
+          playsinline 
+          webkit-playsinline>
           Your browser does not support HTML5 video.
         </video>
       </div>
@@ -124,12 +125,13 @@ export function createTheaterEmbed(videoData) {
   }
 
   return `
-    <div class="relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
+    <div class="theater-embed-stage relative w-full ${containerAspect} mx-auto bg-black rounded-2xl overflow-hidden shadow-2xl">
       <iframe 
         src="${parsed.embedUrl}" 
         class="absolute inset-0 w-full h-full border-0" 
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-        allowfullscreen>
+        allowfullscreen 
+        playsinline>
       </iframe>
     </div>
   `;
