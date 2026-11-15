@@ -794,6 +794,81 @@ export function initContactPills() {
 }
 
 // ============================================================================
+// 10B. HERO HEADLINE ROTATOR & AMBIENT ANIMATIONS
+// ============================================================================
+export function initHeroTitleRotator() {
+  const rotatorContainer = document.getElementById("hero-title-rotator");
+  if (!rotatorContainer) return;
+
+  const items = Array.from(rotatorContainer.querySelectorAll(".hero-rotator-item"));
+  if (items.length <= 1) return;
+
+  const ampersand = document.querySelector(".hero-ampersand");
+  let currentIndex = 0;
+  let intervalId = null;
+  const ROTATE_INTERVAL = 3000;
+
+  function rotateTitle() {
+    const outgoingItem = items[currentIndex];
+    currentIndex = (currentIndex + 1) % items.length;
+    const incomingItem = items[currentIndex];
+
+    // Trigger synchronized micro-pulse on ampersand
+    if (ampersand) {
+      ampersand.classList.remove("pulse");
+      void ampersand.offsetWidth; // Force CSS reflow
+      ampersand.classList.add("pulse");
+    }
+
+    // Step 1: Outgoing item slides up with blur
+    outgoingItem.classList.remove("active");
+    outgoingItem.classList.add("exit-up");
+    outgoingItem.setAttribute("aria-hidden", "true");
+
+    // Step 2: Incoming item slides up from bottom
+    incomingItem.classList.remove("exit-up");
+    incomingItem.classList.add("active");
+    incomingItem.setAttribute("aria-hidden", "false");
+
+    // Step 3: Clean up outgoing item after transition
+    setTimeout(() => {
+      outgoingItem.style.transition = "none";
+      outgoingItem.classList.remove("exit-up");
+      void outgoingItem.offsetWidth;
+      outgoingItem.style.transition = "";
+    }, 550);
+  }
+
+  function startRotation() {
+    if (intervalId) clearInterval(intervalId);
+    intervalId = setInterval(rotateTitle, ROTATE_INTERVAL);
+  }
+
+  function stopRotation() {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  }
+
+  // Start initial rotation cycle
+  startRotation();
+
+  // Pause when browser tab is inactive, resume when active
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      stopRotation();
+    } else {
+      startRotation();
+    }
+  });
+
+  // Pause on hover over rotator
+  rotatorContainer.addEventListener("mouseenter", stopRotation);
+  rotatorContainer.addEventListener("mouseleave", startRotation);
+}
+
+// ============================================================================
 // 11. INITIALIZE PAGE
 // ============================================================================
 async function bootstrapApp() {
@@ -820,6 +895,7 @@ async function bootstrapApp() {
   initFloatingMenu();
   initHowIWorkStepper();
   initContactPills();
+  initHeroTitleRotator();
 
   // Modal "Inquire about a video project →" link: closes player & glides to contact
   const modalInquireLink = document.getElementById("modal-inquire-link");

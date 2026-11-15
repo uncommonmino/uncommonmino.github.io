@@ -55,7 +55,7 @@
   </script>
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/style.css?v=2.2.0" />
+  <link rel="stylesheet" href="css/style.css?v=2.4.0" />
 </head>
 
 <body
@@ -136,30 +136,44 @@
       <div class="max-w-3xl space-y-6">
 
         <!-- Multi-toned editorial headline -->
-        <h1 class="text-4xl sm:text-5xl md:text-[54px] font-bold tracking-tight text-[#111111] leading-[1.18]">
-          Hi, I’m
-          <span class="inline-flex align-middle mx-1 relative group">
-            <img src="assets/avatar.svg" alt="Mina Magdy"
-              class="w-12 h-12 md:w-14 md:h-14 rounded-2xl object-cover ring-2 ring-white shadow-md inline-block bg-neutral-900 transition-transform duration-300 group-hover:scale-105" />
+        <h1 class="hero-headline text-4xl sm:text-5xl md:text-[54px] font-bold tracking-tight text-[#111111] leading-[1.18]">
+          <span class="hero-reveal-segment" style="--stagger: 0;">Hi, I’m</span>
+          <span class="hero-reveal-segment align-middle mx-1" style="--stagger: 1;">
+            <span class="hero-avatar-pill inline-flex align-middle relative group cursor-pointer" title="Mina Magdy">
+              <img src="assets/avatar.svg" alt="Mina Magdy"
+                class="hero-avatar-img w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-2xl object-cover ring-2 ring-white shadow-md inline-block bg-neutral-900" />
+            </span>
           </span>
-          Mina Magdy! <br class="hidden sm:inline" />
-          <span class="text-[#8E8E93] font-normal">I’m a </span>
-          <span class="text-[#111111] font-bold">Video Editor</span>
-          <span class="text-[#8E8E93] font-normal">&amp;</span> <br class="inline" />
-          <span class="text-[#EB7A25] font-bold">Creative Problem Solver.</span>
+          <span class="hero-reveal-segment" style="--stagger: 2;">Mina Magdy!</span> <br class="inline" />
+          <span class="hero-reveal-segment text-[#8E8E93] font-normal" style="--stagger: 3;">I’m a </span>
+          <span class="hero-reveal-segment text-[#111111] font-bold hero-video-editor" style="--stagger: 4;">
+            <span class="hero-video-editor-text">Video Editor</span>
+          </span>
+          <span class="hero-reveal-segment text-[#8E8E93] font-normal" style="--stagger: 5;">
+            <span class="hero-ampersand inline-block ml-0.5">&amp;</span>
+          </span> <br class="inline" />
+          <span class="hero-reveal-segment hero-rotator-line align-baseline" style="--stagger: 6;">
+            <span id="hero-title-rotator" class="hero-rotator-container inline-grid align-baseline text-[#EB7A25] font-bold" aria-live="polite">
+              <span class="hero-rotator-item active" style="grid-area: 1 / 1;" aria-hidden="false">Creative Problem Solver.</span>
+              <span class="hero-rotator-item" style="grid-area: 1 / 1;" aria-hidden="true">Content Creator.</span>
+              <span class="hero-rotator-item" style="grid-area: 1 / 1;" aria-hidden="true">Workflow Innovator.</span>
+            </span>
+          </span>
 
           <!-- Inline Pill Badge with explicit word spacing -->
-          <span
-            class="available-pill-badge inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#EAF8F0] text-[#1DB954] border border-[#D1F2DE] rounded-full text-xs font-semibold align-middle ml-2.5 shadow-xs whitespace-nowrap"
-            style="letter-spacing: normal !important; word-spacing: 0.15em !important;">
-            <span class="w-2 h-2 rounded-full bg-[#10B981] badge-ping flex-shrink-0"></span>
-            <span style="letter-spacing: normal !important; word-spacing: 0.15em !important;">Available for
-              projects</span>
+          <span class="hero-reveal-segment align-middle" style="--stagger: 7;">
+            <span
+              class="available-pill-badge inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#EAF8F0] text-[#1DB954] border border-[#D1F2DE] rounded-full text-xs font-semibold align-middle ml-2.5 shadow-xs whitespace-nowrap"
+              style="letter-spacing: normal !important; word-spacing: 0.15em !important;">
+              <span class="w-2 h-2 rounded-full bg-[#10B981] badge-ping flex-shrink-0"></span>
+              <span style="letter-spacing: normal !important; word-spacing: 0.15em !important;">Available for
+                projects</span>
+            </span>
           </span>
         </h1>
 
         <!-- Primary CTA & Welcoming Subtext (Horizontal Pair) -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-5 pt-3">
+        <div class="hero-reveal-segment flex flex-col sm:flex-row sm:items-center gap-5 pt-3 w-full" style="--stagger: 8; display: flex;">
           <a href="#contact" id="hero-book-call-btn"
             class="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#111111] hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-95 duration-200">
             Book a call
@@ -580,7 +594,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script type="module" src="js/app.js?v=2.1.0"></script>
+  <script type="module" src="js/app.js?v=2.4.0"></script>
 </body>
 
 </html>

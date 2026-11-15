@@ -465,3 +465,244 @@ body {
   }
 }
 
+/* ========================================================================== */
+/* Hero Headline Animations & Rotator                                         */
+/* ========================================================================== */
+
+/* 1. Staggered Blur-In Entrance */
+@keyframes hero-stagger-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.hero-reveal-segment {
+  display: inline-block;
+  opacity: 0;
+  animation: hero-stagger-reveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--stagger, 0) * 90ms);
+  will-change: transform, opacity, filter;
+}
+
+/* 2. Inline Avatar Ambient Motion & Hover State */
+@keyframes hero-avatar-float {
+  0%, 100% {
+    transform: translateY(-3px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(3px) rotate(2deg);
+  }
+}
+
+.hero-avatar-pill {
+  animation: hero-avatar-float 3.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-avatar-img {
+  filter: grayscale(80%);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.35s ease,
+              box-shadow 0.35s ease;
+  will-change: transform, filter, box-shadow;
+}
+
+.hero-avatar-pill:hover .hero-avatar-img {
+  filter: grayscale(0%);
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 10px 25px rgba(235, 122, 37, 0.38), 0 0 0 2px #EB7A25;
+}
+
+/* 3. "Video Editor" Text Sheen & Drawing Underline */
+@keyframes hero-text-sheen {
+  0%, 100% {
+    background-position: 140% 0;
+  }
+  50% {
+    background-position: -40% 0;
+  }
+}
+
+.hero-video-editor {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  vertical-align: baseline;
+}
+
+.hero-video-editor:hover {
+  transform: translateY(-2px);
+}
+
+.hero-video-editor-text {
+  background: linear-gradient(
+    115deg,
+    #111111 0%,
+    #111111 38%,
+    #666666 48%,
+    #ffffff 52%,
+    #666666 56%,
+    #111111 66%,
+    #111111 100%
+  );
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hero-text-sheen 5s ease-in-out infinite;
+  display: inline-block;
+}
+
+.hero-video-editor::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 3px;
+  background-color: #EB7A25;
+  border-radius: 9999px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-video-editor:hover::after {
+  transform: scaleX(1);
+}
+
+/* 4. Ampersand Pulse Animation */
+@keyframes ampersand-micro-pulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    color: #8E8E93;
+  }
+  35% {
+    transform: scale(1.16) rotate(8deg);
+    color: #EB7A25;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    color: #8E8E93;
+  }
+}
+
+.hero-ampersand {
+  display: inline-block;
+  color: #8E8E93;
+  transform-origin: center center;
+  vertical-align: baseline;
+  transition: color 0.3s ease;
+}
+
+.hero-ampersand.pulse {
+  animation: ampersand-micro-pulse 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 5. 3-Title Vertical Slide & Fade Rotator */
+.hero-rotator-line {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.hero-rotator-container {
+  display: inline-grid;
+  grid-template-columns: max-content;
+  vertical-align: baseline;
+  position: relative;
+  overflow: hidden;
+  line-height: 1.18;
+  padding-bottom: 4px;
+}
+
+.hero-rotator-item {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(40%);
+  filter: blur(4px);
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity, filter;
+  white-space: nowrap;
+}
+
+.hero-rotator-item.active {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+.hero-rotator-item.exit-up {
+  opacity: 0;
+  transform: translateY(-40%);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* Mobile Responsiveness for Hero */
+@media (max-width: 640px) {
+  h1.hero-headline {
+    font-size: clamp(0.98rem, 5.2vw, 1.85rem) !important;
+    line-height: 1.25 !important;
+  }
+
+  .hero-rotator-container {
+    max-width: 100%;
+  }
+
+  .available-pill-badge {
+    margin-left: 0 !important;
+    margin-top: 10px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  h1.hero-headline {
+    font-size: 0.96rem !important;
+  }
+
+  .hero-avatar-img {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+  }
+}
+
+/* Accessibility / Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-reveal-segment {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+  }
+
+  .hero-avatar-pill {
+    animation: none !important;
+  }
+
+  .hero-video-editor-text {
+    animation: none !important;
+    -webkit-text-fill-color: #111111 !important;
+  }
+
+  .hero-ampersand.pulse {
+    animation: none !important;
+  }
+
+  .hero-rotator-item {
+    transition: none !important;
+  }
+}
+
+
