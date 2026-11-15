@@ -582,6 +582,8 @@ window.appOpenClientTheater = openClientTheater;
 window.appStepModalClientVideo = stepModalClientVideo;
 window.appSwitchClientVideo = switchClientVideo;
 window.appCloseTheater = closeTheater;
+window.closeModal = closeTheater;
+window.closeTheater = closeTheater;
 
 // ============================================================================
 // 8. "HOW I WORK" INTERACTIVE STEPPER (EXACT BENTO REPLICA)
