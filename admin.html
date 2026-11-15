@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Mina Magdy Portfolio</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#F7F7F5',
+            brandOrange: '#EB7A25',
+            brandDark: '#111111',
+            brandMuted: '#8E8E93',
+          },
+          borderRadius: {
+            'bento': '26px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body
+  class="bg-[#F7F7F5] text-[#111111] antialiased selection:bg-orange-100 selection:text-orange-900 min-h-screen flex flex-col justify-between">
+
+  <!-- ========================================================================= -->
+  <!-- 1. LOGIN VIEW (Shown when user is not authenticated) -->
+  <!-- ========================================================================= -->
+  <div id="admin-login-view" class="flex-grow flex items-center justify-center px-4 py-16">
+    <div class="bento-card w-full max-w-md p-8 sm:p-10 shadow-xl space-y-6">
+
+      <!-- Header -->
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-2xl bg-[#111111] flex items-center justify-center mx-auto shadow-md">
+          <svg class="w-6 h-6 text-[#EB7A25]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19V5l8 9 8-9v14" />
+          </svg>
+        </div>
+        <span class="micro-pill">Studio Access</span>
+        <h1 class="text-2xl font-bold text-[#111111] tracking-tight">Owner Dashboard</h1>
+        <p class="text-xs text-[#8E8E93] leading-relaxed">
+          Sign in to manage portfolio videos, toggle Top 3 Landing Page features, and update content links.
+        </p>
+      </div>
+
+      <!-- Error Notification -->
+      <div id="login-error-msg"
+        class="hidden text-xs p-3.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 leading-relaxed font-medium">
+        <!-- Error text injected dynamically -->
+      </div>
+
+      <!-- Login Form (No public registration) -->
+      <form id="admin-login-form" onsubmit="return false;" class="space-y-4">
+        <div>
+          <label for="login-email" class="block text-xs font-semibold text-neutral-700 mb-1.5">Admin Email</label>
+          <input type="email" id="login-email" required autocomplete="email" placeholder="uncommonmino@gmail.com"
+            class="w-full text-xs font-medium px-4 py-3 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+        </div>
+
+        <div>
+          <label for="login-password" class="block text-xs font-semibold text-neutral-700 mb-1.5">Password</label>
+          <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••••••"
+            class="w-full text-xs font-medium px-4 py-3 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+        </div>
+
+        <button id="admin-login-submit-btn" type="button"
+          onclick="window.handleAdminLogin && window.handleAdminLogin(event)"
+          class="w-full py-3.5 rounded-full bg-[#111111] hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all active:scale-[0.98] cursor-pointer">
+          Sign In to Dashboard
+        </button>
+      </form>
+
+      <div class="pt-4 border-t border-neutral-100 text-center">
+        <a href="index.html" class="text-xs text-neutral-500 hover:text-black font-medium transition-colors">
+          &larr; Return to Public Website
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- 2. DASHBOARD VIEW (Shown when Admin authenticated) -->
+  <!-- ========================================================================= -->
+  <div id="admin-dashboard-view" class="hidden flex-grow flex flex-col">
+
+    <!-- Admin Top Bar -->
+    <header
+      class="w-full max-w-6xl mx-auto px-6 pt-8 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-black/5">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div
+            class="w-8 h-8 rounded-xl bg-[#111111] flex items-center justify-center shadow-xs flex-shrink-0 group-hover:scale-105 transition-transform">
+            <svg class="w-4 h-4 text-[#EB7A25]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19V5l8 9 8-9v14" />
+            </svg>
+          </div>
+          <span
+            class="text-sm font-bold tracking-tight text-neutral-900 group-hover:text-black transition-colors">Portfolio
+            Studio</span>
+        </a>
+        <span class="text-neutral-300">|</span>
+        <span class="text-xs text-neutral-500">
+          Status: <span id="admin-user-email" class="font-medium text-neutral-800">Verified Studio Owner</span>
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="index.html" target="_blank"
+          class="text-xs font-semibold px-4 py-2 rounded-full bg-white border border-black/5 hover:border-black/20 text-neutral-700 hover:text-black shadow-xs transition-all flex items-center gap-1.5">
+          <span>Live Site</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+
+        <button id="admin-logout-btn"
+          class="text-xs font-semibold px-4 py-2 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors cursor-pointer">
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Feedback Notice Bar -->
+    <div id="form-notice" class="hidden max-w-6xl mx-auto px-6 py-3 my-4 rounded-xl text-xs font-medium transition-all">
+    </div>
+
+    <!-- Main Admin Container -->
+    <main class="w-full max-w-6xl mx-auto px-6 py-6 space-y-8 flex-grow">
+
+      <!-- Stats / Top 3 Featured Monitor -->
+      <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+        <div class="bento-card p-5">
+          <span class="micro-pill mb-2">Total Works</span>
+          <p id="stat-total-videos" class="text-3xl font-bold text-neutral-900 mt-1">0</p>
+          <p class="text-xs text-neutral-400 mt-0.5">Videos stored in Firestore</p>
+        </div>
+
+        <div class="bento-card p-5">
+          <span class="micro-pill mb-2">Landing Top 3</span>
+          <div class="flex items-baseline gap-2 mt-1">
+            <p id="stat-featured-videos" class="text-3xl font-bold text-[#EB7A25]">0 / 3</p>
+            <span class="text-xs font-medium text-neutral-500">Selected</span>
+          </div>
+          <p class="text-xs text-neutral-400 mt-0.5">Showcased on Landing Page</p>
+        </div>
+
+        <div class="bento-card p-5">
+          <span class="micro-pill mb-2">Backend Architecture</span>
+          <p class="text-xs font-semibold text-emerald-600 mt-2 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Firebase Spark (Free Plan)
+          </p>
+          <p class="text-[11px] text-neutral-400 mt-1">GitHub Pages Static Hosting Compatible</p>
+        </div>
+
+      </section>
+
+      <!-- Featured Warning Alert (shows if user selects != 3 videos) -->
+      <div id="stat-featured-warning"
+        class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium"></div>
+
+      <!-- ADD / EDIT VIDEO FORM CARD -->
+      <section class="bento-card p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-neutral-100">
+          <div>
+            <span class="micro-pill mb-2">Video Manager</span>
+            <h2 id="form-heading" class="text-xl font-bold text-neutral-900">Add New Video Link</h2>
+          </div>
+          <button id="form-cancel-header-btn" type="button"
+            class="hidden text-xs text-neutral-500 hover:text-black font-semibold cursor-pointer">
+            Cancel Edit
+          </button>
+        </div>
+
+        <form id="video-crud-form" class="grid grid-cols-1 md:grid-cols-2 gap-5" onsubmit="return false;">
+          <input type="hidden" id="video-id" />
+
+          <!-- Title -->
+          <div class="md:col-span-2">
+            <label for="video-title" class="block text-xs font-semibold text-neutral-700 mb-1">Video Title *</label>
+            <input type="text" id="video-title" required placeholder="e.g., Commercial Campaign 2025 - High Energy Edit"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+          </div>
+
+          <!-- Video URL -->
+          <div class="md:col-span-2">
+            <label for="video-url" class="block text-xs font-semibold text-neutral-700 mb-1">
+              Video URL (YouTube, YouTube Shorts, Vimeo, Google Drive, or Direct .mp4) *
+            </label>
+            <input type="url" id="video-url" required
+              placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/shorts/..."
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            <p class="text-[11px] text-neutral-400 mt-1">Smart Video Parser automatically converts to responsive embeds
+              and fetches thumbnails.</p>
+          </div>
+
+          <!-- Client Grouping Row (Series Bento Card) -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="video-client-name" class="block text-xs font-semibold text-neutral-700">
+                Client / Brand Series <span class="text-neutral-400 font-normal">(Optional)</span>
+              </label>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btn-new-client"
+                  class="text-[11px] font-semibold text-neutral-600 hover:text-black hover:underline cursor-pointer">
+                  + New Client
+                </button>
+                <span class="text-neutral-300">|</span>
+                <button type="button" id="btn-rename-series"
+                  class="text-[11px] font-semibold text-[#EB7A25] hover:text-[#d36818] hover:underline cursor-pointer">
+                  ✏️ Rename Series
+                </button>
+              </div>
+            </div>
+            <input type="text" id="video-client-name" placeholder="Leave blank for standalone or click a pill below"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+
+            <!-- Dynamic Bento Client Picker Pills -->
+            <div class="mt-2.5">
+              <div
+                class="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold mb-1.5 flex items-center justify-between">
+                <span>Quick Client Picker</span>
+                <span id="client-picker-count" class="text-[10px] text-neutral-400 font-normal"></span>
+              </div>
+              <div id="client-picker-pills" class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-neutral-400 italic">Loading clients...</span>
+              </div>
+            </div>
+            <p class="text-[11px] text-neutral-400 mt-1.5">Videos with the same client name are grouped into a single
+              Bento card.</p>
+          </div>
+
+          <div>
+            <label for="video-client-order" class="block text-xs font-semibold text-neutral-700 mb-1">
+              Sequence in Client Card <span class="text-neutral-400 font-normal">(01, 02, 03...)</span>
+            </label>
+            <input type="number" id="video-client-order" value="1" min="1"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            <p class="text-[11px] text-neutral-400 mt-1">Order of this video in the client card's 01, 02, 03 pill
+              switcher.</p>
+          </div>
+
+          <!-- Thumbnail URL & Direct PC Upload -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="video-thumb" class="block text-xs font-semibold text-neutral-700">
+                Custom Thumbnail <span class="text-neutral-400 font-normal">(Optional)</span>
+              </label>
+              <button type="button" id="btn-upload-thumbnail"
+                class="text-[11px] font-semibold text-neutral-700 hover:text-black flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F4F4F6] hover:bg-[#EAEAEA] border border-black/5 cursor-pointer transition-colors">
+                <svg class="w-3.5 h-3.5 text-[#EB7A25]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  </path>
+                </svg>
+                Upload from PC
+              </button>
+              <input type="file" id="thumbnail-file-input" accept="image/*" class="hidden" />
+            </div>
+            <input type="text" id="video-thumb" placeholder="https://... or click 'Upload from PC' above"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            <div id="thumb-upload-status" class="hidden text-[11px] text-emerald-600 font-medium mt-1"></div>
+            <p class="text-[11px] text-neutral-400 mt-1">Auto-extracted from YouTube/Vimeo if left empty. PC uploads are
+              compressed to WebP locally.</p>
+          </div>
+
+          <!-- Category -->
+          <div>
+            <label for="video-category" class="block text-xs font-semibold text-neutral-700 mb-1">Category *</label>
+            <select id="video-category"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all cursor-pointer">
+              <option value="Commercials & Ads">Commercials &amp; Ads</option>
+              <option value="Reels & Shorts (9:16)">Reels &amp; Shorts (9:16)</option>
+              <option value="Podcasts & Long-form">Podcasts &amp; Long-form</option>
+              <option value="Motion Graphics">Motion Graphics</option>
+              <option value="Documentary">Documentary</option>
+            </select>
+          </div>
+
+          <!-- Aspect Ratio -->
+          <div>
+            <label for="video-aspect" class="block text-xs font-semibold text-neutral-700 mb-1">Aspect Ratio *</label>
+            <select id="video-aspect"
+              class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all cursor-pointer">
+              <option value="16:9">16:9 (Landscape - YouTube / Commercials)</option>
+              <option value="9:16">9:16 (Vertical - TikTok / Shorts / Reels)</option>
+            </select>
+          </div>
+
+          <!-- Duration & Order Row -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="video-duration" class="block text-xs font-semibold text-neutral-700 mb-1">Duration</label>
+              <input type="text" id="video-duration" placeholder="e.g. 1:45"
+                class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            </div>
+            <div>
+              <label for="video-order" class="block text-xs font-semibold text-neutral-700 mb-1">Sort Order</label>
+              <input type="number" id="video-order" value="1" min="1"
+                class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            </div>
+          </div>
+
+          <!-- Video Description / Production Notes -->
+          <div class="md:col-span-2">
+            <label for="video-desc" class="block text-xs font-semibold text-neutral-700 mb-1">Video Description /
+              Production Notes</label>
+            <textarea id="video-desc" rows="2"
+              placeholder="Brief summary of pacing, sound design, software used, or client brief..."
+              class="w-full text-xs font-medium px-4 py-2 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all"></textarea>
+          </div>
+
+          <!-- Live Bento Form Preview Card -->
+          <div class="md:col-span-2 p-4 sm:p-5 rounded-2xl bg-[#F7F7F5] border border-black/5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="micro-pill bg-white">Live Bento Preview</span>
+                <span class="text-[11px] text-neutral-400">Card rendering preview for public portfolio</span>
+              </div>
+              <span id="preview-platform-badge" class="micro-pill font-mono text-[10px] bg-white">YouTube</span>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4 items-start">
+              <div id="preview-thumb-container"
+                class="relative w-full sm:w-48 aspect-video rounded-xl overflow-hidden bg-neutral-900 border border-black/5 flex-shrink-0">
+                <img id="preview-thumb-img"
+                  src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=400&q=80"
+                  alt="Preview" class="w-full h-full object-cover" />
+                <div id="preview-play-icon" class="absolute inset-0 flex items-center justify-center">
+                  <div
+                    class="w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur-xs">
+                    <svg class="w-4 h-4 ml-0.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+                <span id="preview-aspect-tag"
+                  class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/70 text-white">16:9</span>
+              </div>
+              <div class="flex-1 min-w-0 space-y-1.5">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span id="preview-client-badge"
+                    class="hidden micro-pill text-[10px] bg-white border border-black/5"></span>
+                  <span id="preview-category-badge"
+                    class="micro-pill text-[10px] bg-white border border-black/5">Commercials &amp; Ads</span>
+                </div>
+                <h4 id="preview-title" class="text-sm font-bold text-neutral-900 truncate">Video Title Preview</h4>
+                <p id="preview-desc" class="text-xs text-neutral-500 line-clamp-2">Brief video description will appear
+                  here...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Featured Switch -->
+          <div
+            class="md:col-span-2 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <label for="video-featured" class="text-xs font-bold text-neutral-900 cursor-pointer">
+                Show on Landing Page (Top 3 Featured)
+              </label>
+              <p class="text-[11px] text-neutral-500">
+                Turn on to display this video in the primary Bento showcase on index.html.
+              </p>
+            </div>
+            <input type="checkbox" id="video-featured"
+              class="w-5 h-5 rounded text-[#EB7A25] focus:ring-orange-400 cursor-pointer" />
+          </div>
+
+          <!-- Submit Row with Fast Batch Mode -->
+          <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-4 pt-2">
+            <div class="flex items-center gap-3">
+              <button id="form-submit-btn" type="submit"
+                class="px-8 py-3 rounded-full bg-[#111111] hover:bg-black text-white text-xs font-semibold shadow-xs hover:shadow-md transition-all active:scale-[0.98] cursor-pointer">
+                Add Video to Portfolio
+              </button>
+              <button id="form-cancel-btn" type="button"
+                class="hidden px-5 py-3 rounded-full bg-[#F4F4F6] hover:bg-[#EAEAEA] text-neutral-700 text-xs font-semibold transition-all cursor-pointer">
+                Cancel Edit
+              </button>
+            </div>
+
+            <label
+              class="flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-neutral-700 hover:text-black">
+              <input type="checkbox" id="batch-mode-toggle"
+                class="w-4 h-4 rounded text-[#EB7A25] focus:ring-orange-400 cursor-pointer" />
+              <span>⚡ Fast Batch Mode <span class="text-neutral-400 font-normal">(Keep Client, Category &amp; Ratio
+                  after save)</span></span>
+            </label>
+          </div>
+
+        </form>
+      </section>
+
+      <!-- ALL PORTFOLIO VIDEOS LIST -->
+      <section class="bento-card overflow-hidden">
+        <div class="p-6 border-b border-neutral-100 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span class="micro-pill mb-1">Database Records</span>
+              <h3 class="text-base font-bold text-neutral-900">Manage Portfolio Videos</h3>
+            </div>
+
+            <!-- Backup & Seed Actions Toolbar -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="btn-export-backup"
+                class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#F4F4F6] hover:bg-[#EAEAEA] text-neutral-700 border border-black/5 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export JSON
+              </button>
+
+              <button type="button" id="btn-import-backup"
+                class="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#F4F4F6] hover:bg-[#EAEAEA] text-neutral-700 border border-black/5 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Import JSON
+              </button>
+              <input type="file" id="backup-file-input" accept=".json,application/json" class="hidden" />
+
+              <button type="button" id="btn-clear-videos"
+                class="text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear All Videos
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Dynamic Client Filters -->
+          <div class="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between pt-2">
+            <!-- Search Input -->
+            <div class="relative flex-1 max-w-md">
+              <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input type="text" id="admin-table-search" placeholder="Search videos by title, client, category..."
+                class="w-full text-xs font-medium pl-10 pr-4 py-2 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all" />
+            </div>
+
+            <!-- Client Filter Pills Container -->
+            <div id="admin-table-client-filters" class="flex flex-wrap items-center gap-1.5">
+              <!-- Filter pills dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead
+              class="bg-neutral-50 border-b border-neutral-100 text-neutral-500 font-semibold uppercase tracking-wider text-[10px]">
+              <tr>
+                <th class="px-6 py-3.5">Video Details</th>
+                <th class="px-6 py-3.5">Client Series</th>
+                <th class="px-6 py-3.5">Category</th>
+                <th class="px-6 py-3.5">Ratio</th>
+                <th class="px-6 py-3.5">Order</th>
+                <th class="px-6 py-3.5">Status</th>
+                <th class="px-6 py-3.5">Landing Showcase</th>
+                <th class="px-6 py-3.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-videos-table-body" class="divide-y divide-neutral-100">
+              <tr>
+                <td colspan="8" class="px-6 py-8 text-center text-neutral-400">
+                  Loading videos from Firestore...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer
+    class="w-full max-w-6xl mx-auto px-6 py-6 border-t border-black/5 flex items-center justify-between text-xs text-neutral-400">
+    <span>Mina Magdy Studio • Private Admin Panel</span>
+    <span>Static GitHub Pages + Firebase Spark</span>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="js/admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg-canvas: #F7F7F5;
+  --card-bg: #FFFFFF;
+  --text-primary: #111111;
+  --text-muted: #8E8E93;
+  --accent-orange: #EB7A25;
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --shadow-bento: 0 8px 30px rgba(0, 0, 0, 0.035);
+  --shadow-bento-hover: 0 16px 40px rgba(0, 0, 0, 0.07);
+  --radius-bento: 26px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Inter", sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F0F0EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D1D6;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A1A1A6;
+}
+
+/* Bento Card Base */
+.bento-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-bento);
+  box-shadow: var(--shadow-bento);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-bento-hover);
+}
+
+/* Micro-label pill at top left of bento cards */
+.micro-pill {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  background-color: #F4F4F6;
+  color: #71717A;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+}
+
+/* How I Work Step Button */
+.step-tab {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background-color: #F4F4F6;
+  color: #71717A;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+}
+.step-tab:hover {
+  background-color: #EAEAEA;
+  color: #111111;
+}
+.step-tab.active {
+  background-color: #111111;
+  color: #FFFFFF;
+}
+
+/* Modal Playlist Tab & Compact Numbered Pills (01, 02, 03...) */
+.modal-playlist-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #D1D1D6;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+}
+.modal-playlist-pill:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+.modal-playlist-pill.active {
+  background-color: #FFFFFF;
+  color: #111111;
+  font-weight: 700;
+  border-color: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Modal Prev / Next Navigation Buttons */
+.modal-nav-pill {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #E5E5EA;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-nav-pill:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+.modal-nav-pill:active {
+  transform: translateY(0);
+}
+
+/* Hide scrollbar completely on modal playlist bar */
+#theater-playlist-container,
+.no-scrollbar {
+  overflow: visible !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+#theater-playlist-container::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.modal-playlist-tab {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #D1D1D6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  user-select: none;
+}
+.modal-playlist-tab:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+  color: #FFFFFF;
+}
+.modal-playlist-tab.active {
+  background-color: #FFFFFF;
+  color: #111111;
+  font-weight: 600;
+}
+
+/* Aspect ratio boxes */
+.aspect-16-9 {
+  aspect-ratio: 16 / 9;
+}
+.aspect-9-16 {
+  aspect-ratio: 9 / 16;
+}
+
+/* Video Thumbnail Hover Effects */
+.video-card-thumb {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bento-card:hover .video-card-thumb {
+  transform: scale(1.03);
+}
+
+.play-button-overlay {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+}
+.bento-card:hover .play-button-overlay {
+  transform: scale(1.08);
+  background-color: #EB7A25;
+  color: #FFFFFF;
+}
+
+/* Glassmorphic Showreel Play Button (Centered, No Clipping) */
+.showreel-play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #111111;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, color 0.25s ease;
+}
+.bento-card:hover .showreel-play-btn {
+  transform: scale(1.06);
+  background-color: #EB7A25;
+  color: #FFFFFF;
+}
+
+/* Available for Projects Badge Spacing Reset */
+.available-pill-badge {
+  letter-spacing: normal !important;
+  word-spacing: 0.15em !important;
+}
+.available-pill-badge span {
+  letter-spacing: normal !important;
+  word-spacing: 0.15em !important;
+}
+
+/* Modal animation */
+.modal-backdrop {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(17, 17, 17, 0.65);
+}
+
+/* Pulsing Badge Indicator */
+@keyframes ping-subtle {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(0.95); opacity: 0; }
+}
+.badge-ping {
+  animation: ping-subtle 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Floating Bento Menu Popover (Anchored, Non-shifting) */
+.floating-bento-popover {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s;
+  pointer-events: none;
+  border-radius: 20px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12), 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.floating-bento-popover.popover-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Minimalist Circular Button Icon Morphing (= to X) */
+.menu-bar {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#mobile-menu-btn.is-active .menu-bar-top {
+  transform: translateY(2.75px) rotate(45deg);
+}
+#mobile-menu-btn.is-active .menu-bar-bottom {
+  transform: translateY(-2.75px) rotate(-45deg);
+}
+
+/* Contact Bento Card Optimization */
+.contact-card-headline {
+  font-size: clamp(1.45rem, 2.15vw, 1.95rem);
+}
+.contact-action-badge {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
