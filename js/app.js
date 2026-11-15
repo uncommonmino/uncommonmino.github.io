@@ -245,7 +245,7 @@ export function buildClientSeriesCard(group) {
                   type="button" 
                   id="tab-${group.groupId}-${idx}"
                   onclick="event.stopPropagation(); window.appSwitchClientVideo('${group.groupId}', ${idx});"
-                  class="step-tab text-xs px-2.5 py-1 ${idx === 0 ? 'active' : ''}"
+                  class="step-tab text-xs px-3 py-1.5 min-h-[36px] min-w-[36px] inline-flex items-center justify-center ${idx === 0 ? 'active' : ''}"
                   title="${v.title}">
                   ${String(idx + 1).padStart(2, '0')}
                 </button>

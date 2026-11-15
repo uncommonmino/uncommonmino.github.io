@@ -4,12 +4,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mina Magdy — Video Editor & Content Producer</title>
-  <meta name="description"
-    content="Portfolio of Mina Magdy, high-impact Video Editor and Content Producer specializing in commercial edits, viral reels, and narrative storytelling." />
+  <title>Mina Magdy — Video Editor &amp; Creative Problem Solver</title>
+  <meta name="title" content="Mina Magdy — Video Editor &amp; Creative Problem Solver" />
+  <meta name="description" content="High-retention 9:16 reels, commercial spots, podcasts &amp; dynamic motion graphics." />
+  <meta name="theme-color" content="#EB7A25" />
 
-  <!-- Favicon -->
+  <!-- Favicon & Mobile Touch Icons -->
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://uncommonmino.github.io/assets/apple-touch-icon.png" />
+
+  <!-- Open Graph / Instagram / WhatsApp / Facebook / Discord -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Mina Magdy" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://uncommonmino.github.io/" />
+  <meta property="og:title" content="Mina Magdy — Video Editor &amp; Creative Problem Solver" />
+  <meta property="og:description" content="High-retention 9:16 reels, commercial spots, podcasts &amp; dynamic motion graphics." />
+  <meta property="og:image" content="https://uncommonmino.github.io/assets/og-preview.png" />
+  <meta property="og:image:secure_url" content="https://uncommonmino.github.io/assets/og-preview.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Mina Magdy — Video Editor &amp; Content Producer Portfolio" />
+
+  <!-- Twitter / X Large Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://uncommonmino.github.io/" />
+  <meta name="twitter:title" content="Mina Magdy — Video Editor &amp; Creative Problem Solver" />
+  <meta name="twitter:description" content="High-retention 9:16 reels, commercial spots, podcasts &amp; dynamic motion graphics." />
+  <meta name="twitter:image" content="https://uncommonmino.github.io/assets/og-preview.png" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -41,7 +64,7 @@
   <!-- ========================================================================= -->
   <!-- TOP NAVIGATION BAR (Exact reference aesthetic) -->
   <!-- ========================================================================= -->
-  <header class="w-full max-w-5xl mx-auto px-6 pt-8 pb-4 flex items-center justify-between relative z-50">
+  <header class="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-4 flex items-center justify-between relative z-50">
     <!-- Brand / Email Link -->
     <div class="flex items-center gap-2">
       <!-- Minimalist geometric logo mark -->
@@ -52,7 +75,7 @@
         </svg>
       </a>
       <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
-      <a href="mailto:uncommonmino@gmail.com" class="text-sm font-medium tracking-tight text-neutral-700 hover:text-black transition-colors">
+      <a href="mailto:uncommonmino@gmail.com" class="text-xs sm:text-sm font-medium tracking-tight text-neutral-700 hover:text-black transition-colors truncate max-w-[170px] xs:max-w-[220px] sm:max-w-none">
         uncommonmino@gmail.com
       </a>
     </div>
@@ -104,7 +127,7 @@
     </div>
   </header>
 
-  <main class="w-full max-w-5xl mx-auto px-6 py-8 flex-grow space-y-14">
+  <main class="w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-grow space-y-12 sm:space-y-14">
 
     <!-- ========================================================================= -->
     <!-- HERO SECTION (Strictly matching attached reference image) -->
@@ -501,18 +524,18 @@
   <div id="theater-modal"
     class="fixed inset-0 z-50 hidden modal-backdrop items-center justify-center p-4 sm:p-6 transition-all">
     <div
-      class="relative w-full max-w-4xl bg-[#111111] rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/10 text-white flex flex-col gap-4">
+      class="relative w-full max-w-4xl max-h-[92dvh] overflow-y-auto bg-[#111111] rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/10 text-white flex flex-col gap-3 sm:gap-4 no-scrollbar">
 
       <!-- Modal Header -->
-      <div class="flex items-center justify-between border-b border-white/10 pb-3">
-        <div>
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 gap-3">
+        <div class="min-w-0">
           <span id="modal-video-category"
             class="text-[11px] font-semibold text-orange-400 tracking-wider uppercase">Category</span>
           <h3 id="modal-video-title" class="text-base sm:text-lg font-bold text-white truncate max-w-md">Video Player
           </h3>
         </div>
         <button id="modal-close-btn"
-          class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+          class="w-9 h-9 min-h-[36px] min-w-[36px] shrink-0 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white text-lg transition-colors cursor-pointer"
           aria-label="Close video player">
           &times;
         </button>

@@ -104,7 +104,9 @@ export function parseVideoUrl(url, explicitAspectRatio = null) {
 export function createTheaterEmbed(videoData) {
   const parsed = parseVideoUrl(videoData.videoUrl, videoData.aspectRatio);
   const isVertical = (videoData.aspectRatio === '9:16' || parsed.aspectRatio === '9:16');
-  const containerAspect = isVertical ? 'max-w-[380px] aspect-[9/16]' : 'max-w-4xl aspect-[16/9]';
+  const containerAspect = isVertical 
+    ? 'max-w-[320px] max-h-[52dvh] sm:max-h-[62vh] aspect-[9/16]' 
+    : 'max-w-4xl aspect-[16/9]';
 
   if (parsed.isDirect) {
     return `
