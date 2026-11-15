@@ -407,3 +407,61 @@ body {
   }
 }
 
+/* ========================================================================== */
+/* Mobile-Only Contact Action Cards Optimization (<= 640px)                   */
+/* ========================================================================== */
+@media (max-width: 640px) {
+  #contact .bento-card {
+    padding: 22px 16px !important;
+  }
+
+  .contact-pill-card {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 15px !important;
+    row-gap: 10px !important;
+    column-gap: 8px !important;
+  }
+
+  .contact-pill-info {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .contact-pill-text {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  .contact-pill-text h4 {
+    font-size: 14px !important;
+    line-height: 1.25 !important;
+  }
+
+  .contact-pill-text p {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+
+  #email-pill-subtext {
+    font-size: 12px !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+  }
+
+  .contact-action-badge {
+    position: static !important;
+    margin-left: auto !important;
+    align-self: flex-end !important;
+    font-size: 11.5px !important;
+    padding: 5px 12px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+}
+
