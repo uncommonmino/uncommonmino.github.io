@@ -207,6 +207,37 @@ body {
   color: #FFFFFF;
 }
 
+/* Video Grid Cards Alignment & Uniformity */
+.bento-card .thumbnail-stage-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  margin-bottom: 0.875rem;
+}
+
+.bento-card .video-card-bottom-group {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.bento-card .video-card-details {
+  margin-top: 0.15rem;
+  margin-bottom: 0.25rem;
+}
+
+.bento-card .video-card-details h3 {
+  min-height: 1.5rem;
+  line-height: 1.5rem;
+}
+
+.bento-card .video-card-details p {
+  min-height: 2.35rem;
+  line-height: 1.25rem;
+}
+
 /* Glassmorphic Showreel Play Button (Centered, No Clipping) */
 .showreel-play-btn {
   width: 52px;

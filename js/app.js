@@ -122,55 +122,77 @@ export function buildStandaloneVideoCard(video) {
   const parsed = parseVideoUrl(video.videoUrl, video.aspectRatio);
   const isVertical = (video.aspectRatio === "9:16" || parsed.aspectRatio === "9:16");
   const thumbUrl = video.thumbnailUrl || parsed.thumbnailUrl || parsed.fallbackThumb || "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80";
+  const categoryClean = (video.category || 'Production').replace(/\s*\([^)]*\)/g, '').trim();
 
   return `
-    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group cursor-pointer"
+    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full group cursor-pointer"
          data-video-id="${video.id}"
          onclick="window.appOpenTheater('${video.id}')">
       
       <!-- Card Header: Micro Pill & Aspect Indicator -->
-      <div class="flex items-center justify-between mb-3.5">
-        <span class="micro-pill">
-          <span class="w-1.5 h-1.5 rounded-full ${isVertical ? 'bg-orange-500' : 'bg-neutral-400'}"></span>
-          ${video.category || 'Production'}
+      <div class="h-7 flex items-center justify-between mb-3.5">
+        <span class="micro-pill max-w-[155px] truncate">
+          <span class="w-1.5 h-1.5 rounded-full ${isVertical ? 'bg-orange-500' : 'bg-neutral-400'} shrink-0"></span>
+          <span class="truncate">${categoryClean}</span>
         </span>
-        <span class="text-[11px] font-medium text-neutral-400 tracking-wide">
-          ${isVertical ? '9:16 Reel' : '16:9'}
+        <span class="text-[11px] font-medium text-neutral-400 tracking-wide shrink-0">
+          1 Video • ${isVertical ? '9:16 Reel' : '16:9'}
         </span>
       </div>
 
-      <!-- Video Media Box with Play Overlay -->
-      <div class="relative w-full ${isVertical ? 'aspect-[9/16] max-h-[420px]' : 'aspect-16-9'} rounded-2xl overflow-hidden bg-neutral-900 mb-4 shadow-sm">
-        <img 
-          src="${thumbUrl}" 
-          alt="${video.title}" 
-          loading="lazy"
-          onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80'"
-          class="video-card-thumb w-full h-full object-cover opacity-90 group-hover:opacity-100" />
-        
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none"></div>
+      <!-- Thumbnail Stage Wrapper: Vertically Centers 16:9 while 9:16 fills stage -->
+      <div class="thumbnail-stage-wrapper flex-1 flex flex-col justify-center min-h-0 mb-3.5">
+        <!-- Video Media Box with Play Overlay -->
+        <div class="relative w-full ${isVertical ? 'aspect-[9/16] max-h-[420px]' : 'aspect-16-9'} rounded-2xl overflow-hidden bg-neutral-900 shadow-sm">
+          <img 
+            src="${thumbUrl}" 
+            alt="${video.title}" 
+            loading="lazy"
+            onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80'"
+            class="video-card-thumb w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none"></div>
 
-        <div class="play-button-overlay absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md text-neutral-900 flex items-center justify-center shadow-lg pointer-events-none">
-          <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
+          <div class="play-button-overlay absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md text-neutral-900 flex items-center justify-center shadow-lg pointer-events-none">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+
+          ${video.duration ? `
+            <div class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[11px] font-medium text-white tracking-wide">
+              ${video.duration}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Bottom Group: Title, Description & Bottom Footer Bar -->
+      <div class="video-card-bottom-group mt-auto flex flex-col">
+        <!-- Video Title & Details -->
+        <div class="video-card-details">
+          <h3 class="text-base font-semibold text-neutral-900 group-hover:text-[#EB7A25] transition-colors line-clamp-1">
+            ${video.title}
+          </h3>
+          <p class="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
+            ${video.description || 'High-impact pacing, dynamic cuts, and cinematic sound design.'}
+          </p>
         </div>
 
-        ${video.duration ? `
-          <div class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[11px] font-medium text-white tracking-wide">
-            ${video.duration}
+        <!-- Consistent Bottom Footer Bar -->
+        <div class="pt-3 mt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
+          <span class="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+            Single Cut
+          </span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button 
+              type="button" 
+              class="step-tab active text-xs px-3 py-1.5 min-h-[36px] min-w-[36px] inline-flex items-center justify-center"
+              title="${video.title}">
+              01
+            </button>
           </div>
-        ` : ''}
-      </div>
-
-      <!-- Video Title & Details -->
-      <div>
-        <h3 class="text-base font-semibold text-neutral-900 group-hover:text-[#EB7A25] transition-colors line-clamp-1">
-          ${video.title}
-        </h3>
-        <p class="text-xs text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
-          ${video.description || 'High-impact pacing, dynamic cuts, and cinematic sound design.'}
-        </p>
+        </div>
       </div>
 
     </div>
@@ -182,51 +204,57 @@ export function buildClientSeriesCard(group) {
   const parsed = parseVideoUrl(activeVideo.videoUrl, activeVideo.aspectRatio);
   const isVertical = (activeVideo.aspectRatio === "9:16" || parsed.aspectRatio === "9:16");
   const thumbUrl = activeVideo.thumbnailUrl || parsed.thumbnailUrl || parsed.fallbackThumb || "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80";
+  const videoCountText = group.videos.length === 1 ? '1 Video' : `${group.videos.length} Videos`;
+  const categoryClean = (group.category || 'Production').replace(/\s*\([^)]*\)/g, '').trim();
 
   return `
-    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col justify-between group"
+    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full group"
          id="client-card-${group.groupId}"
          data-group-id="${group.groupId}"
          data-active-index="0">
       
       <!-- Card Header: Micro Pill Client Brand + Video Count -->
-      <div class="flex items-center justify-between mb-3.5">
-        <span class="micro-pill">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
-          ${group.clientName}
+      <div class="h-7 flex items-center justify-between mb-3.5">
+        <span class="micro-pill max-w-[155px] truncate">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25] shrink-0"></span>
+          <span class="truncate">${group.clientName}</span>
         </span>
-        <span class="text-[11px] font-medium text-neutral-400 tracking-wide">
-          ${group.videos.length} Videos • ${group.category}
+        <span class="text-[11px] font-medium text-neutral-400 tracking-wide shrink-0">
+          ${videoCountText} • ${categoryClean}
         </span>
       </div>
 
-      <!-- Video Media Box with Play Overlay (Opens Theater Modal) -->
-      <div class="relative w-full ${isVertical ? 'aspect-[9/16] max-h-[420px]' : 'aspect-16-9'} rounded-2xl overflow-hidden bg-neutral-900 mb-4 shadow-sm cursor-pointer"
-           onclick="window.appOpenClientTheater('${group.groupId}')">
-        <img 
-          id="client-thumb-${group.groupId}"
-          src="${thumbUrl}" 
-          alt="${activeVideo.title}" 
-          loading="lazy"
-          onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80'"
-          class="video-card-thumb w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none"></div>
+      <!-- Thumbnail Stage Wrapper: Vertically Centers 16:9 while 9:16 fills stage -->
+      <div class="thumbnail-stage-wrapper flex-1 flex flex-col justify-center min-h-0 mb-3.5">
+        <!-- Video Media Box with Play Overlay (Opens Theater Modal) -->
+        <div class="relative w-full ${isVertical ? 'aspect-[9/16] max-h-[420px]' : 'aspect-16-9'} rounded-2xl overflow-hidden bg-neutral-900 shadow-sm cursor-pointer"
+             onclick="window.appOpenClientTheater('${group.groupId}')">
+          <img 
+            id="client-thumb-${group.groupId}"
+            src="${thumbUrl}" 
+            alt="${activeVideo.title}" 
+            loading="lazy"
+            onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=800&q=80'"
+            class="video-card-thumb w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+          
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 pointer-events-none"></div>
 
-        <div class="play-button-overlay absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md text-neutral-900 flex items-center justify-center shadow-lg pointer-events-none">
-          <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z"/>
-          </svg>
-        </div>
+          <div class="play-button-overlay absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 backdrop-blur-md text-neutral-900 flex items-center justify-center shadow-lg pointer-events-none">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
 
-        <div id="client-dur-${group.groupId}" class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[11px] font-medium text-white tracking-wide ${activeVideo.duration ? '' : 'hidden'}">
-          ${activeVideo.duration || ''}
+          <div id="client-dur-${group.groupId}" class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[11px] font-medium text-white tracking-wide ${activeVideo.duration ? '' : 'hidden'}">
+            ${activeVideo.duration || ''}
+          </div>
         </div>
       </div>
 
-      <!-- Video Title & Details -->
-      <div class="space-y-3">
-        <div>
+      <!-- Bottom Group: Title, Description & Bottom Footer Bar -->
+      <div class="video-card-bottom-group mt-auto flex flex-col">
+        <!-- Video Title & Details -->
+        <div class="video-card-details cursor-pointer" onclick="window.appOpenClientTheater('${group.groupId}')">
           <h3 id="client-title-${group.groupId}" class="text-base font-semibold text-neutral-900 group-hover:text-[#EB7A25] transition-colors line-clamp-1">
             ${activeVideo.title}
           </h3>
@@ -235,24 +263,24 @@ export function buildClientSeriesCard(group) {
           </p>
         </div>
 
-        <!-- In-Card Sequence Switcher (Exact Step 01 Pill Style) -->
-        ${group.videos.length > 1 ? `
-          <div class="pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
-            <span class="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">Series</span>
-            <div class="flex items-center gap-1.5 flex-wrap">
-              ${group.videos.map((v, idx) => `
-                <button 
-                  type="button" 
-                  id="tab-${group.groupId}-${idx}"
-                  onclick="event.stopPropagation(); window.appSwitchClientVideo('${group.groupId}', ${idx});"
-                  class="step-tab text-xs px-3 py-1.5 min-h-[36px] min-w-[36px] inline-flex items-center justify-center ${idx === 0 ? 'active' : ''}"
-                  title="${v.title}">
-                  ${String(idx + 1).padStart(2, '0')}
-                </button>
-              `).join('')}
-            </div>
+        <!-- In-Card Sequence Switcher (Consistent across ALL cards) -->
+        <div class="pt-3 mt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
+          <span class="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
+            ${group.videos.length > 1 ? 'Series' : 'Single Cut'}
+          </span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            ${group.videos.map((v, idx) => `
+              <button 
+                type="button" 
+                id="tab-${group.groupId}-${idx}"
+                onclick="event.stopPropagation(); window.appSwitchClientVideo('${group.groupId}', ${idx});"
+                class="step-tab text-xs px-3 py-1.5 min-h-[36px] min-w-[36px] inline-flex items-center justify-center ${idx === 0 ? 'active' : ''}"
+                title="${v.title}">
+                ${String(idx + 1).padStart(2, '0')}
+              </button>
+            `).join('')}
           </div>
-        ` : ''}
+        </div>
       </div>
 
     </div>
