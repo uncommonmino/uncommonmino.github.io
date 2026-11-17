@@ -274,10 +274,11 @@ export function buildClientSeriesCard(group) {
   }
 
   return `
-    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full group"
+    <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full group cursor-pointer"
          id="client-card-${group.groupId}"
          data-group-id="${group.groupId}"
-         data-active-index="0">
+         data-active-index="0"
+         onclick="window.appOpenClientTheater('${group.groupId}')">
       
       <!-- Card Header: Micro Pill Client Brand + Video Count -->
       <div class="h-7 flex items-center justify-between mb-3.5">
@@ -586,62 +587,130 @@ export function initFeaturedCarousel(totalSlides) {
   // Touch Swipe & Mouse Drag Handling (attach only once)
   if (stage && !carouselEventListenersAttached) {
     carouselEventListenersAttached = true;
-    let startX = 0;
-    let diffX = 0;
-    let isDragging = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchDiffX = 0;
+    let touchDiffY = 0;
+    let isTouching = false;
+    let isHorizontalGesture = false;
+    let wasSwiped = false;
 
-    const onStart = (clientX) => {
-      startX = clientX;
-      diffX = 0;
-      isDragging = true;
-    };
-
-    const onMove = (clientX) => {
-      if (!isDragging) return;
-      diffX = clientX - startX;
-    };
-
-    const onEnd = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      const visibleCount = getVisibleCount();
-      const maxIndex = Math.max(0, totalSlides - visibleCount);
-
-      if (diffX < -40 && featuredCarouselIndex < maxIndex) {
-        featuredCarouselIndex++;
-      } else if (diffX > 40 && featuredCarouselIndex > 0) {
-        featuredCarouselIndex--;
-      }
-      updateCarousel(true);
-    };
-
-    // Touch events for mobile swiping
+    // Passive touch listeners for mobile swipe
     stage.addEventListener("touchstart", (e) => {
       if (e.touches && e.touches.length === 1) {
-        onStart(e.touches[0].clientX);
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchDiffX = 0;
+        touchDiffY = 0;
+        isTouching = true;
+        isHorizontalGesture = false;
+        wasSwiped = false;
       }
     }, { passive: true });
 
     stage.addEventListener("touchmove", (e) => {
-      if (e.touches && e.touches.length === 1) {
-        onMove(e.touches[0].clientX);
+      if (!isTouching || !e.touches || e.touches.length !== 1) return;
+      touchDiffX = e.touches[0].clientX - touchStartX;
+      touchDiffY = e.touches[0].clientY - touchStartY;
+
+      // Distinguish horizontal swipe vs vertical scroll
+      if (!isHorizontalGesture) {
+        if (Math.abs(touchDiffX) > 10 && Math.abs(touchDiffX) > Math.abs(touchDiffY)) {
+          isHorizontalGesture = true;
+        } else if (Math.abs(touchDiffY) > 10) {
+          // Vertical scroll: cancel carousel touch tracking
+          isTouching = false;
+        }
       }
     }, { passive: true });
 
-    stage.addEventListener("touchend", onEnd, { passive: true });
+    stage.addEventListener("touchend", () => {
+      if (!isTouching) return;
+      isTouching = false;
 
-    // Pointer events for mouse dragging
-    stage.addEventListener("pointerdown", (e) => {
+      // ONLY trigger carousel slide update if an intentional horizontal swipe occurred
+      if (isHorizontalGesture && Math.abs(touchDiffX) >= 40) {
+        wasSwiped = true;
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, totalSlides - visibleCount);
+
+        if (touchDiffX < -40 && featuredCarouselIndex < maxIndex) {
+          featuredCarouselIndex++;
+          updateCarousel(true);
+        } else if (touchDiffX > 40 && featuredCarouselIndex > 0) {
+          featuredCarouselIndex--;
+          updateCarousel(true);
+        }
+        setTimeout(() => { wasSwiped = false; }, 250);
+      }
+      // CRITICAL: If Math.abs(touchDiffX) < 40, this was a tap!
+      // We DO NOT call updateCarousel(true), DO NOT touch track styles,
+      // and allow the native click event to bubble cleanly to open the modal!
+    }, { passive: true });
+
+    // Desktop mouse drag support
+    let mouseStartX = 0;
+    let mouseDiffX = 0;
+    let isMouseDown = false;
+
+    stage.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
       if (e.target.closest("button") || e.target.closest("a") || e.target.closest(".step-tab")) return;
-      onStart(e.clientX);
+      mouseStartX = e.clientX;
+      mouseDiffX = 0;
+      isMouseDown = true;
     });
 
-    stage.addEventListener("pointermove", (e) => {
-      onMove(e.clientX);
+    window.addEventListener("mousemove", (e) => {
+      if (!isMouseDown) return;
+      mouseDiffX = e.clientX - mouseStartX;
     });
 
-    stage.addEventListener("pointerup", onEnd);
-    stage.addEventListener("pointercancel", onEnd);
+    window.addEventListener("mouseup", () => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+
+      if (Math.abs(mouseDiffX) >= 50) {
+        wasSwiped = true;
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, totalSlides - visibleCount);
+
+        if (mouseDiffX < -50 && featuredCarouselIndex < maxIndex) {
+          featuredCarouselIndex++;
+          updateCarousel(true);
+        } else if (mouseDiffX > 50 && featuredCarouselIndex > 0) {
+          featuredCarouselIndex--;
+          updateCarousel(true);
+        }
+        setTimeout(() => { wasSwiped = false; }, 250);
+      }
+    });
+
+    // Delegated click listener on featured container to guarantee cards open theater
+    featuredContainer.addEventListener("click", (e) => {
+      if (wasSwiped) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      if (e.target.closest(".step-tab") || e.target.closest("button") || e.target.closest("a")) {
+        return;
+      }
+
+      const card = e.target.closest(".bento-card");
+      if (!card) return;
+
+      const groupId = card.getAttribute("data-group-id");
+      const videoId = card.getAttribute("data-video-id");
+
+      if (groupId) {
+        const activeIdx = Number(card.getAttribute("data-active-index")) || 0;
+        openClientTheater(groupId, activeIdx);
+      } else if (videoId) {
+        openTheater(videoId);
+      }
+    });
 
     // Resize handling
     window.addEventListener("resize", () => {
