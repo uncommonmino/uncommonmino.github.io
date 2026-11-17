@@ -11,6 +11,11 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
 
+  <!-- Google Fonts Preconnect (High-performance font loading) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -32,7 +37,7 @@
   </script>
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/style.css?v=2.1.0" />
+  <link rel="stylesheet" href="css/style.css?v=2.8.0" />
 </head>
 
 <body
@@ -55,7 +60,7 @@
         <span class="micro-pill">Studio Access</span>
         <h1 class="text-2xl font-bold text-[#111111] tracking-tight">Owner Dashboard</h1>
         <p class="text-xs text-[#8E8E93] leading-relaxed">
-          Sign in to manage portfolio videos, toggle Top 3 Landing Page features, and update content links.
+          Sign in to manage portfolio videos, configure carousel priority and order, and update content links.
         </p>
       </div>
 
@@ -146,7 +151,7 @@
     <!-- Main Admin Container -->
     <main class="w-full max-w-6xl mx-auto px-6 py-6 space-y-8 flex-grow">
 
-      <!-- Stats / Top 3 Featured Monitor -->
+      <!-- Stats / Carousel Priority Monitor -->
       <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
         <div class="bento-card p-5">
@@ -156,12 +161,11 @@
         </div>
 
         <div class="bento-card p-5">
-          <span class="micro-pill mb-2">Landing Top 3</span>
+          <span class="micro-pill mb-2">Carousel Priority</span>
           <div class="flex items-baseline gap-2 mt-1">
-            <p id="stat-featured-videos" class="text-3xl font-bold text-[#EB7A25]">0 / 3</p>
-            <span class="text-xs font-medium text-neutral-500">Selected</span>
+            <p id="stat-featured-videos" class="text-3xl font-bold text-[#EB7A25]">0 Pinned</p>
           </div>
-          <p class="text-xs text-neutral-400 mt-0.5">Showcased on Landing Page</p>
+          <p id="stat-featured-sub" class="text-xs text-neutral-400 mt-0.5">0 Pinned First • 0 Total Cards</p>
         </div>
 
         <div class="bento-card p-5">
@@ -175,7 +179,7 @@
 
       </section>
 
-      <!-- Featured Warning Alert (shows if user selects != 3 videos) -->
+      <!-- Featured Warning Alert (hidden by default) -->
       <div id="stat-featured-warning"
         class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium"></div>
 
@@ -302,8 +306,8 @@
             <label for="video-aspect" class="block text-xs font-semibold text-neutral-700 mb-1">Aspect Ratio *</label>
             <select id="video-aspect"
               class="w-full text-xs font-medium px-4 py-2.5 rounded-xl bg-[#F7F7F5] border border-black/5 focus:border-black/30 focus:outline-none transition-all cursor-pointer">
+              <option value="9:16" selected>9:16 (Vertical - TikTok / Shorts / Reels)</option>
               <option value="16:9">16:9 (Landscape - YouTube / Commercials)</option>
-              <option value="9:16">9:16 (Vertical - TikTok / Shorts / Reels)</option>
             </select>
           </div>
 
@@ -341,7 +345,7 @@
             </div>
             <div class="flex flex-col sm:flex-row gap-4 items-start">
               <div id="preview-thumb-container"
-                class="relative w-full sm:w-48 aspect-video rounded-xl overflow-hidden bg-neutral-900 border border-black/5 flex-shrink-0">
+                class="relative w-28 sm:w-32 aspect-[9/16] rounded-xl overflow-hidden bg-neutral-900 border border-black/5 flex-shrink-0">
                 <img id="preview-thumb-img"
                   src="https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=400&q=80"
                   alt="Preview" class="w-full h-full object-cover" />
@@ -354,7 +358,7 @@
                   </div>
                 </div>
                 <span id="preview-aspect-tag"
-                  class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/70 text-white">16:9</span>
+                  class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-black/70 text-white">9:16</span>
               </div>
               <div class="flex-1 min-w-0 space-y-1.5">
                 <div class="flex flex-wrap items-center gap-1.5">
@@ -370,19 +374,24 @@
             </div>
           </div>
 
-          <!-- Featured Switch -->
+          <!-- Landing Page Carousel Priority & Pin Section -->
           <div
-            class="md:col-span-2 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex items-center justify-between">
+            class="md:col-span-2 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="space-y-0.5">
-              <label for="video-featured" class="text-xs font-bold text-neutral-900 cursor-pointer">
-                Show on Landing Page (Top 3 Featured)
+              <label for="video-featured" class="text-xs font-bold text-neutral-900 cursor-pointer flex items-center gap-2">
+                <input type="checkbox" id="video-featured"
+                  class="w-4 h-4 rounded text-[#EB7A25] focus:ring-orange-400 cursor-pointer" />
+                <span>Pin to Front of Landing Page Carousel (Priority Order)</span>
               </label>
-              <p class="text-[11px] text-neutral-500">
-                Turn on to display this video in the primary Bento showcase on index.html.
+              <p class="text-[11px] text-neutral-500 pl-6">
+                Pinned cards appear first in the landing page carousel in your chosen sequence, followed smoothly by remaining vertical cuts.
               </p>
             </div>
-            <input type="checkbox" id="video-featured"
-              class="w-5 h-5 rounded text-[#EB7A25] focus:ring-orange-400 cursor-pointer" />
+            <div class="flex items-center gap-2 pl-6 sm:pl-0">
+              <label for="video-featured-order" class="text-xs font-semibold text-neutral-700 whitespace-nowrap">Carousel Position:</label>
+              <input type="number" id="video-featured-order" min="1" placeholder="Rank (e.g. 1)"
+                class="w-24 text-xs font-medium px-3 py-1.5 rounded-xl bg-white border border-black/10 focus:border-black/30 focus:outline-none transition-all" />
+            </div>
           </div>
 
           <!-- Submit Row with Fast Batch Mode -->
@@ -469,26 +478,31 @@
               <!-- Filter pills dynamically populated -->
             </div>
           </div>
+
+          <!-- Pinned Carousel Quick Strip -->
+          <div id="carousel-pinned-strip" class="pt-3 border-t border-neutral-100 flex flex-wrap items-center gap-2">
+            <!-- Dynamically populated chips showing pinned cards in order #1, #2, #3... -->
+          </div>
         </div>
 
         <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
+          <table class="w-full text-left text-xs min-w-[760px]">
             <thead
               class="bg-neutral-50 border-b border-neutral-100 text-neutral-500 font-semibold uppercase tracking-wider text-[10px]">
               <tr>
-                <th class="px-6 py-3.5">Video Details</th>
-                <th class="px-6 py-3.5">Client Series</th>
-                <th class="px-6 py-3.5">Category</th>
-                <th class="px-6 py-3.5">Ratio</th>
-                <th class="px-6 py-3.5">Order</th>
-                <th class="px-6 py-3.5">Status</th>
-                <th class="px-6 py-3.5">Landing Showcase</th>
-                <th class="px-6 py-3.5 text-right">Actions</th>
+                <th class="px-4 py-3">Video Details</th>
+                <th class="px-3 py-3">Client Series</th>
+                <th class="px-3 py-3">Category</th>
+                <th class="px-2 py-3 text-center">Ratio</th>
+                <th class="px-3 py-3 text-center">Order</th>
+                <th class="px-3 py-3 text-center">Status</th>
+                <th class="px-3 py-3 text-center">Carousel Rank</th>
+                <th class="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="admin-videos-table-body" class="divide-y divide-neutral-100">
               <tr>
-                <td colspan="8" class="px-6 py-8 text-center text-neutral-400">
+                <td colspan="8" class="px-4 py-8 text-center text-neutral-400">
                   Loading videos from Firestore...
                 </td>
               </tr>
@@ -509,7 +523,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script type="module" src="js/admin.js?v=2.1.0"></script>
+  <script type="module" src="js/admin.js?v=2.8.0"></script>
 </body>
 
 </html>

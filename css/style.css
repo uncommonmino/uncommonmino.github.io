@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
-
 :root {
   --bg-canvas: #F7F7F5;
   --card-bg: #FFFFFF;
@@ -10,6 +8,11 @@
   --shadow-bento: 0 8px 30px rgba(0, 0, 0, 0.035);
   --shadow-bento-hover: 0 16px 40px rgba(0, 0, 0, 0.07);
   --radius-bento: 26px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-orange, #EB7A25) !important;
+  outline-offset: 2px !important;
 }
 
 html {
@@ -238,6 +241,85 @@ body {
   line-height: 1.25rem;
 }
 
+/* Secondary Hero CTA Button */
+.hero-gallery-btn {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.hero-gallery-btn:hover {
+  border-color: #EB7A25 !important;
+  color: #EB7A25 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(235, 122, 37, 0.12);
+}
+
+/* Deliverable Tags in How I Work */
+.deliverable-tag {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.deliverable-tag:hover {
+  background-color: #F7F7F5;
+  border-color: rgba(235, 122, 37, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ========================================================================== */
+/* Crisp Grid-Aligned Carousel for Top Featured Productions                  */
+/* ========================================================================== */
+.carousel-stage {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 6px 0 12px 0;
+  margin: -6px 0 -12px 0;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 24px;
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  align-items: stretch;
+}
+
+/* Desktop (> 1024px): Exact 3-column grid proportions matching bento grid */
+.carousel-slide {
+  flex: 0 0 calc((100% - 48px) / 3);
+  width: calc((100% - 48px) / 3);
+  max-width: calc((100% - 48px) / 3);
+  box-sizing: border-box;
+}
+
+/* Tablet (769px–1024px): Exact 2 full cards */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .carousel-slide {
+    flex: 0 0 calc((100% - 24px) / 2);
+    width: calc((100% - 24px) / 2);
+    max-width: calc((100% - 24px) / 2);
+  }
+}
+
+/* Mobile (<= 768px): Exact 1 full 100%-width card centered with zero side clipping */
+@media (max-width: 768px) {
+  .carousel-track {
+    gap: 20px;
+  }
+  .carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+.carousel-nav-btn {
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-dot {
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
 /* Glassmorphic Showreel Play Button (Centered, No Clipping) */
 .showreel-play-btn {
   width: 52px;
@@ -266,11 +348,85 @@ body {
   word-spacing: 0.15em !important;
 }
 
-/* Modal animation */
+/* Modal animation & smooth transitions */
 .modal-backdrop {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background-color: rgba(17, 17, 17, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background-color: rgba(17, 17, 17, 0.72);
+}
+
+#theater-modal {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease-out, visibility 0.22s ease-out;
+}
+
+#theater-modal.theater-modal-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#theater-modal .theater-modal-card {
+  transform: scale(0.96) translateY(8px);
+  opacity: 0.9;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease-out;
+}
+
+#theater-modal.theater-modal-active .theater-modal-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Bento Staggered Scroll Reveal */
+.bento-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.bento-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card 3: Editing Stack Brand Hover Glows */
+.tool-pill {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+}
+
+.tool-pill:hover {
+  transform: translateY(-2px);
+  background-color: #FFFFFF;
+}
+
+.tool-pill-pr:hover {
+  border-color: rgba(153, 153, 255, 0.7);
+  box-shadow: 0 6px 18px -4px rgba(153, 153, 255, 0.25);
+}
+
+.tool-pill-ae:hover {
+  border-color: rgba(210, 155, 253, 0.7);
+  box-shadow: 0 6px 18px -4px rgba(210, 155, 253, 0.25);
+}
+
+.tool-pill-dv:hover {
+  border-color: rgba(255, 161, 20, 0.7);
+  box-shadow: 0 6px 18px -4px rgba(255, 161, 20, 0.25);
+}
+
+/* Mobile Filter Bar Scroll Hint Mask */
+@media (max-width: 640px) {
+  .scroll-mask-hint {
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+  .scroll-mask-none {
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
 }
 
 /* Pulsing Badge Indicator */
@@ -281,6 +437,58 @@ body {
 }
 .badge-ping {
   animation: ping-subtle 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ==========================================================================
+   LOCATION BENTO CARD & DUAL-RING RADAR PULSE
+   ========================================================================== */
+.location-map-container {
+  min-height: 195px;
+  background-color: #EDECE8;
+}
+
+@keyframes radar-pulse-1 {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.95;
+  }
+  65% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@keyframes radar-pulse-2 {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.95;
+  }
+  65% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+.radar-ring-1 {
+  animation: radar-pulse-1 2.8s cubic-bezier(0.15, 0.75, 0.4, 1) infinite;
+}
+
+.radar-ring-2 {
+  animation: radar-pulse-2 2.8s cubic-bezier(0.15, 0.75, 0.4, 1) 1.2s infinite;
+}
+
+.location-coord-badge {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
 /* Floating Bento Menu Popover (Anchored, Non-shifting) */
@@ -739,6 +947,12 @@ body {
 
 /* Accessibility / Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+  .bento-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
   .hero-reveal-segment {
     opacity: 1 !important;
     transform: none !important;

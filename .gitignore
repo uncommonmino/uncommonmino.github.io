@@ -33,3 +33,9 @@ firebase-debug.log*
 firestore-debug.log*
 ui-debug.log*
 
+# Local Resume & Drafts (Private / Not for Public Repository)
+resume.html
+*Resume*.pdf
+*resume*.pdf
+
+

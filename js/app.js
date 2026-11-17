@@ -12,16 +12,19 @@ import {
   orderBy, 
   isConfigured, 
   DEFAULT_SAMPLE_VIDEOS 
-} from "./firebase-config.js?v=2.1.0";
+} from "./firebase-config.js?v=2.8.0";
 
-import { parseVideoUrl, createTheaterEmbed } from "./videoParser.js?v=2.1.0";
+import { parseVideoUrl, createTheaterEmbed } from "./videoParser.js?v=2.8.0";
 
 // State
 let allVideos = [];
 let currentCategory = "All";
 export let clientGroupsMap = {};
+export let currentGroupedItems = [];
 let currentModalGroup = null;
 let currentModalIndex = 0;
+let currentModalProjectIndex = 0;
+let currentActiveVideoId = null;
 
 // DOM Elements
 const featuredContainer = document.getElementById("featured-videos-grid");
@@ -34,9 +37,31 @@ const modalCloseBtn = document.getElementById("modal-close-btn");
 const theaterPlaylistContainer = document.getElementById("theater-playlist-container");
 
 // ============================================================================
-// 1. DATA FETCHING (FIRESTORE OR SEED FALLBACK)
+// DYNAMIC VIDEO COUNTS SYNCHRONIZATION
+// ============================================================================
+export function updateDynamicCounts(totalVideos) {
+  const count = typeof totalVideos === "number" && totalVideos > 0 ? totalVideos : 14;
+  const cutsStr = `${count}+ Cuts`;
+  const exploreStr = `Explore ${count}+ Cuts`;
+  const videosStr = `• ${count} Videos`;
+
+  document.querySelectorAll('[data-count-badge="cuts"]').forEach(el => {
+    el.textContent = cutsStr;
+  });
+  document.querySelectorAll('[data-count-badge="cuts-explore"]').forEach(el => {
+    el.textContent = exploreStr;
+  });
+  document.querySelectorAll('[data-count-badge="videos"]').forEach(el => {
+    el.textContent = videosStr;
+  });
+}
+
+// ============================================================================
+// 1. DATA FETCHING (FIRESTORE, LOCAL CACHE, OR SEED FALLBACK)
 // ============================================================================
 export async function loadVideos() {
+  const CACHE_KEY = "mina_portfolio_videos_cache";
+
   if (isConfigured && db) {
     try {
       const q = query(collection(db, "videos"));
@@ -50,14 +75,35 @@ export async function loadVideos() {
       const publicDocs = docs.filter(v => v.isVisible !== false);
       publicDocs.sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
       allVideos = publicDocs;
+
+      // Update localStorage cache for instant offline / subsequent loads
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(publicDocs));
+      } catch (e) {}
+
+      updateDynamicCounts(allVideos.length);
       return allVideos;
     } catch (err) {
-      console.warn("Firestore fetch notice:", err.message);
+      console.warn("Firestore fetch notice, trying local cache:", err.message);
     }
   }
 
-  // Fallback to default curated videos (empty array if none)
+  // 1. Try local cache if Firestore was unreachable or not yet ready
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        allVideos = parsed.filter(v => v.isVisible !== false);
+        updateDynamicCounts(allVideos.length);
+        return allVideos;
+      }
+    }
+  } catch (e) {}
+
+  // 2. Fallback to default curated videos
   allVideos = (DEFAULT_SAMPLE_VIDEOS || []).filter(v => v.isVisible !== false);
+  updateDynamicCounts(allVideos.length);
   return allVideos;
 }
 
@@ -90,12 +136,20 @@ export function groupVideos(videosList) {
       group.videos.push(v);
       if (v.isFeatured === true || v.isFeatured === "true") {
         group.isFeatured = true;
+        const fOrder = Number(v.featuredOrder);
+        if (!isNaN(fOrder) && fOrder > 0) {
+          group.featuredOrder = group.featuredOrder !== undefined ? Math.min(group.featuredOrder, fOrder) : fOrder;
+        }
       }
       group.order = Math.min(group.order, Number(v.order) || 99);
     } else {
+      const isFeatured = v.isFeatured === true || v.isFeatured === "true";
+      const fOrder = Number(v.featuredOrder);
       standaloneItems.push({
         isGroup: false,
-        ...v
+        ...v,
+        isFeatured,
+        featuredOrder: (isFeatured && !isNaN(fOrder) && fOrder > 0) ? fOrder : (isFeatured ? 99 : 999)
       });
     }
   });
@@ -103,6 +157,9 @@ export function groupVideos(videosList) {
   // Sort videos within each group by clientOrder ascending
   const groupedItems = [];
   groupsByClient.forEach(group => {
+    if (group.isFeatured && group.featuredOrder === undefined) {
+      group.featuredOrder = 99;
+    }
     group.videos.sort((a, b) => (Number(a.clientOrder) || 1) - (Number(b.clientOrder) || 1));
     clientGroupsMap[group.groupId] = group;
     groupedItems.push(group);
@@ -111,6 +168,7 @@ export function groupVideos(videosList) {
   // Combine and sort by order ascending
   const allItems = [...groupedItems, ...standaloneItems];
   allItems.sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
+  currentGroupedItems = allItems;
   return allItems;
 }
 
@@ -207,6 +265,14 @@ export function buildClientSeriesCard(group) {
   const videoCountText = group.videos.length === 1 ? '1 Video' : `${group.videos.length} Videos`;
   const categoryClean = (group.category || 'Production').replace(/\s*\([^)]*\)/g, '').trim();
 
+  // Normalize client names (e.g. Wagdy's W1) for clean single-line header fit
+  let clientDisplayName = group.clientName;
+  if (/wagdy.*(?:wave\s*one|w1)/i.test(clientDisplayName)) {
+    clientDisplayName = "Wagdy’s W1";
+  } else if (/wagdy.*(?:wave\s*two|w2)/i.test(clientDisplayName)) {
+    clientDisplayName = "Wagdy’s W2";
+  }
+
   return `
     <div class="bento-card bento-card-hover p-4 sm:p-5 flex flex-col h-full group"
          id="client-card-${group.groupId}"
@@ -217,7 +283,7 @@ export function buildClientSeriesCard(group) {
       <div class="h-7 flex items-center justify-between mb-3.5">
         <span class="micro-pill max-w-[155px] truncate">
           <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25] shrink-0"></span>
-          <span class="truncate">${group.clientName}</span>
+          <span class="truncate">${clientDisplayName}</span>
         </span>
         <span class="text-[11px] font-medium text-neutral-400 tracking-wide shrink-0">
           ${videoCountText} • ${categoryClean}
@@ -357,14 +423,17 @@ export function switchClientVideo(groupId, index) {
 }
 
 // ============================================================================
-// 5. LANDING PAGE: TOP 3 FEATURED SHOWCASE
+// 5. LANDING PAGE: TOP FEATURED CRISP GRID-ALIGNED CAROUSEL
 // ============================================================================
+let featuredCarouselIndex = 0;
+let carouselEventListenersAttached = false;
+
 export function renderFeaturedVideos(videos) {
   if (!featuredContainer) return;
 
   if (!videos || videos.length === 0) {
     featuredContainer.innerHTML = `
-      <div class="bento-card p-12 col-span-full text-center space-y-2">
+      <div class="bento-card p-12 w-full text-center space-y-2">
         <div class="w-10 h-10 rounded-2xl bg-neutral-100 border border-black/5 flex items-center justify-center mx-auto text-neutral-400 mb-3">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -378,25 +447,212 @@ export function renderFeaturedVideos(videos) {
   }
 
   const groupedItems = groupVideos(videos);
-  const featured = groupedItems.filter(item => item.isFeatured === true || item.isFeatured === "true");
-  const displayList = featured.length > 0 ? featured.slice(0, 3) : groupedItems.slice(0, 3);
+
+  // In index.html featured carousel, include only top 9:16 vertical projects:
+  // Siran, Sclinic, Wagdy's W1, Huwa, Wagdy's W2, Jaz Store (keep 16:9 like Re-edited in videos.html)
+  const verticalItems = groupedItems.filter(item => {
+    if (item.isGroup && item.videos && item.videos.length > 0) {
+      const v = item.videos[0];
+      return v.aspectRatio === "9:16" || item.aspectRatio === "9:16";
+    }
+    return item.aspectRatio === "9:16";
+  });
+
+  const featured = verticalItems.filter(item => item.isFeatured === true || item.isFeatured === "true");
+  const remaining = verticalItems.filter(item => !(item.isFeatured === true || item.isFeatured === "true"));
+  
+  // Sort pinned/featured productions by assigned carousel rank ascending (1, 2, 3...)
+  featured.sort((a, b) => (Number(a.featuredOrder) || 99) - (Number(b.featuredOrder) || 99));
+
+  // Sort remaining vertical productions by standard sort order ascending
+  remaining.sort((a, b) => (Number(a.order) || 99) - (Number(b.order) || 99));
+
+  // Showcase all featured 9:16 productions followed smoothly by remaining 9:16 cuts
+  const displayList = [...featured, ...remaining];
 
   if (displayList.length === 0) {
     featuredContainer.innerHTML = `
-      <div class="bento-card p-12 col-span-full text-center space-y-2">
-        <div class="w-10 h-10 rounded-2xl bg-neutral-100 border border-black/5 flex items-center justify-center mx-auto text-neutral-400 mb-3">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-          </svg>
-        </div>
+      <div class="bento-card p-12 w-full text-center space-y-2">
         <p class="text-sm font-semibold text-neutral-800">No Featured Videos Yet</p>
-        <p class="text-xs text-neutral-400 max-w-sm mx-auto">Curated showcase videos will appear here once added in the Admin Dashboard.</p>
       </div>
     `;
     return;
   }
 
-  featuredContainer.innerHTML = displayList.map(renderCard).join("");
+  // Render each item wrapped in a carousel-slide container
+  featuredContainer.innerHTML = displayList.map((item, idx) => `
+    <div class="carousel-slide flex-shrink-0 flex flex-col" data-slide-index="${idx}">
+      ${renderCard(item)}
+    </div>
+  `).join("");
+
+  // Initialize crisp grid-aligned carousel
+  initFeaturedCarousel(displayList.length);
+}
+
+export function initFeaturedCarousel(totalSlides) {
+  if (!featuredContainer || totalSlides <= 0) return;
+
+  const prevBtn = document.getElementById("featured-prev-btn");
+  const nextBtn = document.getElementById("featured-next-btn");
+  const dotsContainer = document.getElementById("featured-carousel-dots");
+  const stage = document.querySelector(".carousel-stage");
+
+  function getVisibleCount() {
+    if (window.innerWidth > 1024) return 3;
+    if (window.innerWidth > 768) return 2;
+    return 1;
+  }
+
+  function getGap() {
+    return window.innerWidth <= 768 ? 20 : 24;
+  }
+
+  function updateCarousel(animate = true) {
+    const visibleCount = getVisibleCount();
+    const maxIndex = Math.max(0, totalSlides - visibleCount);
+    featuredCarouselIndex = Math.max(0, Math.min(featuredCarouselIndex, maxIndex));
+
+    const slides = featuredContainer.querySelectorAll(".carousel-slide");
+    if (!slides.length) return;
+
+    const firstSlide = slides[0];
+    const slideWidth = firstSlide.getBoundingClientRect().width;
+    const gap = getGap();
+    const offset = featuredCarouselIndex * (slideWidth + gap);
+
+    featuredContainer.style.transition = animate ? "transform 450ms cubic-bezier(0.22, 1, 0.36, 1)" : "none";
+    featuredContainer.style.transform = `translateX(-${offset}px)`;
+
+    // Keep all visible cards 100% sharp, full-opacity, and unclipped (clean grid alignment)
+    slides.forEach((slide) => {
+      slide.style.transform = "none";
+      slide.style.opacity = "1";
+      slide.style.filter = "none";
+    });
+
+    // Update buttons state
+    if (prevBtn) {
+      prevBtn.disabled = featuredCarouselIndex === 0;
+    }
+    if (nextBtn) {
+      nextBtn.disabled = featuredCarouselIndex >= maxIndex;
+    }
+
+    // Update pagination dots (1 dot per exact full-card snap state)
+    if (dotsContainer) {
+      const numDots = maxIndex + 1;
+      dotsContainer.innerHTML = Array.from({ length: numDots }).map((_, i) => `
+        <button type="button" 
+          class="carousel-dot h-2 rounded-full transition-all duration-300 ${i === featuredCarouselIndex ? 'w-6 bg-[#EB7A25]' : 'w-2 bg-neutral-300 hover:bg-neutral-400'}" 
+          data-index="${i}" 
+          aria-label="Go to carousel slide ${i + 1}">
+        </button>
+      `).join("");
+
+      dotsContainer.querySelectorAll(".carousel-dot").forEach(dot => {
+        dot.onclick = () => {
+          const idx = parseInt(dot.getAttribute("data-index"), 10);
+          if (!isNaN(idx)) {
+            featuredCarouselIndex = idx;
+            updateCarousel(true);
+          }
+        };
+      });
+    }
+  }
+
+  // Button clicks
+  if (prevBtn) {
+    prevBtn.onclick = () => {
+      if (featuredCarouselIndex > 0) {
+        featuredCarouselIndex--;
+        updateCarousel(true);
+      }
+    };
+  }
+
+  if (nextBtn) {
+    nextBtn.onclick = () => {
+      const visibleCount = getVisibleCount();
+      const maxIndex = Math.max(0, totalSlides - visibleCount);
+      if (featuredCarouselIndex < maxIndex) {
+        featuredCarouselIndex++;
+        updateCarousel(true);
+      }
+    };
+  }
+
+  // Touch Swipe & Mouse Drag Handling (attach only once)
+  if (stage && !carouselEventListenersAttached) {
+    carouselEventListenersAttached = true;
+    let startX = 0;
+    let diffX = 0;
+    let isDragging = false;
+
+    const onStart = (clientX) => {
+      startX = clientX;
+      diffX = 0;
+      isDragging = true;
+    };
+
+    const onMove = (clientX) => {
+      if (!isDragging) return;
+      diffX = clientX - startX;
+    };
+
+    const onEnd = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      const visibleCount = getVisibleCount();
+      const maxIndex = Math.max(0, totalSlides - visibleCount);
+
+      if (diffX < -40 && featuredCarouselIndex < maxIndex) {
+        featuredCarouselIndex++;
+      } else if (diffX > 40 && featuredCarouselIndex > 0) {
+        featuredCarouselIndex--;
+      }
+      updateCarousel(true);
+    };
+
+    // Touch events for mobile swiping
+    stage.addEventListener("touchstart", (e) => {
+      if (e.touches && e.touches.length === 1) {
+        onStart(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    stage.addEventListener("touchmove", (e) => {
+      if (e.touches && e.touches.length === 1) {
+        onMove(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    stage.addEventListener("touchend", onEnd, { passive: true });
+
+    // Pointer events for mouse dragging
+    stage.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button") || e.target.closest("a") || e.target.closest(".step-tab")) return;
+      onStart(e.clientX);
+    });
+
+    stage.addEventListener("pointermove", (e) => {
+      onMove(e.clientX);
+    });
+
+    stage.addEventListener("pointerup", onEnd);
+    stage.addEventListener("pointercancel", onEnd);
+
+    // Resize handling
+    window.addEventListener("resize", () => {
+      updateCarousel(false);
+    });
+  }
+
+  // Initial render
+  setTimeout(() => {
+    updateCarousel(false);
+  }, 50);
 }
 
 // ============================================================================
@@ -472,6 +728,23 @@ export function initGalleryFilters() {
       renderGallery(filtered, currentCategory);
     });
   }
+
+  // Mobile horizontal scroll hint mask handling
+  const filtersContainer = document.getElementById("category-filters-container");
+  if (filtersContainer) {
+    const updateScrollMask = () => {
+      const isAtEnd = (filtersContainer.scrollLeft + filtersContainer.clientWidth) >= (filtersContainer.scrollWidth - 8);
+      if (isAtEnd) {
+        filtersContainer.classList.add("scroll-mask-none");
+        filtersContainer.classList.remove("scroll-mask-hint");
+      } else {
+        filtersContainer.classList.remove("scroll-mask-none");
+        filtersContainer.classList.add("scroll-mask-hint");
+      }
+    };
+    filtersContainer.addEventListener("scroll", updateScrollMask, { passive: true });
+    updateScrollMask();
+  }
 }
 
 // ============================================================================
@@ -483,6 +756,19 @@ export function openTheater(videoId) {
 
   currentModalGroup = null;
   currentModalIndex = 0;
+  currentActiveVideoId = video.id;
+
+  if (currentGroupedItems && currentGroupedItems.length) {
+    const idx = currentGroupedItems.findIndex(item => !item.isGroup && item.id === videoId);
+    if (idx !== -1) currentModalProjectIndex = idx;
+  }
+
+  // Deep-link state update
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("v", video.id);
+    window.history.replaceState(null, "", url.toString());
+  } catch (e) {}
 
   if (modalTitle) modalTitle.textContent = video.title;
   if (modalCategory) modalCategory.textContent = video.category || 'Production';
@@ -509,6 +795,9 @@ export function openTheater(videoId) {
 
   theaterModal.classList.remove("hidden");
   theaterModal.classList.add("flex");
+  requestAnimationFrame(() => {
+    theaterModal.classList.add("theater-modal-active");
+  });
   document.body.style.overflow = "hidden";
 }
 
@@ -522,6 +811,19 @@ export function openClientTheater(groupId, specificIndex = null) {
 
   currentModalGroup = groupId;
   currentModalIndex = activeIdx;
+  currentActiveVideoId = video.id;
+
+  if (currentGroupedItems && currentGroupedItems.length) {
+    const idx = currentGroupedItems.findIndex(item => item.isGroup && item.groupId === groupId);
+    if (idx !== -1) currentModalProjectIndex = idx;
+  }
+
+  // Deep-link state update
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.set("v", video.id);
+    window.history.replaceState(null, "", url.toString());
+  } catch (e) {}
 
   // Sync background card if it exists
   if (card) {
@@ -600,18 +902,53 @@ export function openClientTheater(groupId, specificIndex = null) {
 
   theaterModal.classList.remove("hidden");
   theaterModal.classList.add("flex");
+  requestAnimationFrame(() => {
+    theaterModal.classList.add("theater-modal-active");
+  });
   document.body.style.overflow = "hidden";
 }
 
+export function stepModalProject(direction) {
+  if (!currentGroupedItems || !currentGroupedItems.length) {
+    if (allVideos.length) {
+      currentGroupedItems = groupVideos(allVideos);
+    }
+  }
+  if (!currentGroupedItems || !currentGroupedItems.length) return;
+
+  let nextIdx = currentModalProjectIndex + direction;
+  if (nextIdx < 0) nextIdx = currentGroupedItems.length - 1;
+  else if (nextIdx >= currentGroupedItems.length) nextIdx = 0;
+
+  currentModalProjectIndex = nextIdx;
+  const target = currentGroupedItems[nextIdx];
+  if (!target) return;
+
+  if (target.isGroup) {
+    const vidIdx = direction === -1 ? (target.videos.length - 1) : 0;
+    openClientTheater(target.groupId, vidIdx);
+  } else {
+    openTheater(target.id);
+  }
+}
+
 export function stepModalClientVideo(direction) {
-  if (!currentModalGroup) return;
+  if (!currentModalGroup) {
+    stepModalProject(direction);
+    return;
+  }
   const group = clientGroupsMap[currentModalGroup];
-  if (!group || !group.videos.length) return;
+  if (!group || !group.videos.length) {
+    stepModalProject(direction);
+    return;
+  }
 
   const total = group.videos.length;
   let nextIdx = currentModalIndex + direction;
-  if (nextIdx < 0) nextIdx = total - 1;
-  else if (nextIdx >= total) nextIdx = 0;
+  if (nextIdx < 0 || nextIdx >= total) {
+    stepModalProject(direction);
+    return;
+  }
 
   openClientTheater(currentModalGroup, nextIdx);
 }
@@ -620,55 +957,194 @@ export function closeTheater() {
   if (!theaterModal || !theaterContent) return;
   currentModalGroup = null;
   currentModalIndex = 0;
-  theaterContent.innerHTML = "";
-  if (theaterPlaylistContainer) {
-    theaterPlaylistContainer.innerHTML = "";
-    theaterPlaylistContainer.classList.add("hidden");
+  currentActiveVideoId = null;
+
+  try {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("v");
+    url.searchParams.delete("video");
+    window.history.replaceState(null, "", url.pathname + (url.hash || ""));
+  } catch (e) {}
+
+  theaterModal.classList.remove("theater-modal-active");
+  setTimeout(() => {
+    if (!currentActiveVideoId) {
+      theaterContent.innerHTML = "";
+      if (theaterPlaylistContainer) {
+        theaterPlaylistContainer.innerHTML = "";
+        theaterPlaylistContainer.classList.add("hidden");
+      }
+      theaterModal.classList.add("hidden");
+      theaterModal.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+  }, 220);
+}
+
+// Modal Share Link Handling
+export function initModalShare() {
+  const shareBtn = document.getElementById("modal-share-btn");
+  if (!shareBtn) return;
+
+  shareBtn.addEventListener("click", async () => {
+    if (!currentActiveVideoId) return;
+
+    try {
+      const shareUrl = new URL(window.location.href);
+      shareUrl.searchParams.set("v", currentActiveVideoId);
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareUrl.toString());
+      } else {
+        const input = document.createElement("input");
+        input.value = shareUrl.toString();
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+
+      const label = shareBtn.querySelector(".modal-share-label");
+      const originalText = label ? label.textContent : "Copy Link";
+      if (label) label.textContent = "Copied!";
+      shareBtn.classList.add("bg-emerald-500/20", "text-emerald-300");
+
+      setTimeout(() => {
+        if (label) label.textContent = originalText;
+        shareBtn.classList.remove("bg-emerald-500/20", "text-emerald-300");
+      }, 2000);
+    } catch (err) {
+      console.warn("Share link copy notice:", err);
+    }
+  });
+}
+
+// Deep-linking (?v=slug-or-id) handling
+export function handleDeepLinkParam() {
+  const params = new URLSearchParams(window.location.search);
+  const target = params.get("v") || params.get("video");
+  if (!target) return;
+
+  const targetLower = target.toLowerCase().trim();
+
+  // 1. Try matching video by exact ID
+  const directVid = allVideos.find(v => v.id && v.id.toLowerCase() === targetLower);
+  if (directVid) {
+    const clientName = (directVid.clientName || directVid.client || "").trim().toLowerCase();
+    if (clientName) {
+      const group = Object.values(clientGroupsMap).find(g => (g.clientName || "").toLowerCase() === clientName);
+      if (group) {
+        const idx = group.videos.findIndex(v => v.id === directVid.id);
+        openClientTheater(group.groupId, idx >= 0 ? idx : 0);
+        return;
+      }
+    }
+    openTheater(directVid.id);
+    return;
   }
-  theaterModal.classList.add("hidden");
-  theaterModal.classList.remove("flex");
-  document.body.style.overflow = "";
+
+  // 2. Try matching client group by name or groupId
+  const matchedGroup = Object.values(clientGroupsMap).find(g => 
+    g.groupId.toLowerCase() === targetLower ||
+    (g.clientName || "").toLowerCase() === targetLower ||
+    (g.clientName || "").toLowerCase().replace(/[^a-z0-9]/g, "-") === targetLower
+  );
+  if (matchedGroup) {
+    openClientTheater(matchedGroup.groupId, 0);
+    return;
+  }
+
+  // 3. Try matching by slug in title
+  const titleMatched = allVideos.find(v => (v.title || "").toLowerCase().replace(/[^a-z0-9]/g, "-").includes(targetLower));
+  if (titleMatched) {
+    openTheater(titleMatched.id);
+  }
+}
+
+// Scroll-driven Staggered Bento Reveal
+export function initScrollReveal() {
+  const revealElements = document.querySelectorAll(".bento-reveal");
+  if (!revealElements.length) return;
+
+  if (typeof IntersectionObserver === "undefined") {
+    revealElements.forEach(el => el.classList.add("in-view"));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+        obs.unobserve(entry.target);
+      }
+    });
+  }, {
+    rootMargin: "0px 0px -30px 0px",
+    threshold: 0.05
+  });
+
+  revealElements.forEach((el, index) => {
+    const delay = (index % 3) * 60;
+    if (delay > 0) {
+      el.style.transitionDelay = `${delay}ms`;
+    }
+    observer.observe(el);
+  });
 }
 
 // Attach to window so inline onclick handlers in generated cards work
 window.appOpenTheater = openTheater;
 window.appOpenClientTheater = openClientTheater;
 window.appStepModalClientVideo = stepModalClientVideo;
+window.appStepModalProject = stepModalProject;
 window.appSwitchClientVideo = switchClientVideo;
 window.appCloseTheater = closeTheater;
 window.closeModal = closeTheater;
 window.closeTheater = closeTheater;
 
 // ============================================================================
-// 8. "HOW I WORK" INTERACTIVE STEPPER (EXACT BENTO REPLICA)
+// 8. "HOW I WORK" INTERACTIVE STEPPER (EXACT BENTO REPLICA WITH PROGRESS TRACK)
 // ============================================================================
 const WORK_STEPS = {
   1: {
     title: "01 Discovery & Creative Brief",
-    text: "In the first stage, we review your raw footage, target audience psychology, pacing benchmarks, and delivery platforms. This allows us to establish a crystal-clear creative direction and story structure before cutting."
+    text: "In the first stage, we dive deep into your raw footage, target audience psychology, pacing benchmarks, and target platforms to build a bulletproof narrative structure.",
+    progress: "20%",
+    tags: ["Hook Strategy", "Audience Psychology", "Pacing Benchmarks"]
   },
   2: {
     title: "02 Assembly & Story Structure",
-    text: "We construct the narrative backbone: selecting prime takes, crafting the rough cut timeline, eliminating filler, and locking the emotional rhythm and pacing before adding motion or audio effects."
+    text: "We construct the narrative backbone: selecting prime takes, crafting the rough cut timeline, eliminating filler, and locking the emotional rhythm and pacing before adding motion or audio effects.",
+    progress: "40%",
+    tags: ["A-Roll Selects", "Narrative Pacing", "Rough Cut Timeline"]
   },
   3: {
     title: "03 Dynamic Sound Design & Foley",
-    text: "Video is 50% sound. We build high-impact audio layers featuring crisp dialogue leveling, bespoke sound effects (whooshes, risers, textures), and precision musical beat synchronization."
+    text: "Video is 50% sound. We build high-impact audio layers featuring crisp dialogue leveling, bespoke sound effects (whooshes, risers, textures), and precision musical beat synchronization.",
+    progress: "60%",
+    tags: ["Dialogue Leveling", "Bespoke Foley & SFX", "Beat Synchronization"]
   },
   4: {
     title: "04 Color Grading & Motion Design",
-    text: "Elevating visual production value: custom color grading, contrast balancing, animated kinetic typography, modern lower thirds, and seamless motion graphics inside After Effects."
+    text: "Elevating visual production value: custom color grading, contrast balancing, animated kinetic typography, modern lower thirds, and seamless motion graphics inside After Effects.",
+    progress: "80%",
+    tags: ["Cinematic Color LUTs", "Kinetic Typography", "After Effects VFX"]
   },
   5: {
     title: "05 Polish, Revisions & Multi-Format Delivery",
-    text: "Frame-accurate revisions, client review cycles via Frame.io, and optimized exports for 16:9 YouTube 4K master files, 9:16 high-retention social reels, and full master project archives."
+    text: "Frame-accurate revisions, client review cycles via Frame.io, and optimized exports for 16:9 YouTube 4K master files, 9:16 high-retention social reels, and full master project archives.",
+    progress: "100%",
+    tags: ["Frame.io Review", "4K YouTube 16:9", "High-Retention 9:16"]
   }
 };
 
 export function initHowIWorkStepper() {
-  const stepTabs = document.querySelectorAll(".step-tab");
+  const stepTabs = document.querySelectorAll("#how-i-work .step-tab");
   const stepTitle = document.getElementById("step-display-title");
   const stepText = document.getElementById("step-display-text");
+  const progressBar = document.getElementById("step-progress-bar");
+  const progressText = document.getElementById("step-progress-percentage");
+  const tagsContainer = document.getElementById("step-deliverables-container");
 
   if (!stepTabs.length || !stepTitle || !stepText) return;
 
@@ -682,14 +1158,34 @@ export function initHowIWorkStepper() {
       stepTabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
 
+      // Smooth fade transition
       stepTitle.style.opacity = "0";
       stepText.style.opacity = "0";
+      if (tagsContainer) tagsContainer.style.opacity = "0";
+
+      if (progressBar) {
+        progressBar.style.width = stepData.progress;
+      }
+      if (progressText) {
+        progressText.textContent = `${stepData.progress} Completed`;
+      }
 
       setTimeout(() => {
         stepTitle.textContent = stepData.title;
         stepText.textContent = stepData.text;
+
+        if (tagsContainer && stepData.tags) {
+          tagsContainer.innerHTML = stepData.tags.map(tag => `
+            <span class="deliverable-tag px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 text-xs font-medium border border-neutral-200/60 inline-flex items-center gap-1.5 transition-all">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
+              ${tag}
+            </span>
+          `).join("");
+        }
+
         stepTitle.style.opacity = "1";
         stepText.style.opacity = "1";
+        if (tagsContainer) tagsContainer.style.opacity = "1";
       }, 150);
     });
   });
@@ -897,6 +1393,32 @@ export function initHeroTitleRotator() {
 }
 
 // ============================================================================
+// 10C. LIVE CAIRO TIME TICKER (GMT+2)
+// ============================================================================
+export function initCairoClock() {
+  const timeEl = document.getElementById("cairo-live-time");
+  if (!timeEl) return;
+
+  function updateTime() {
+    try {
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Africa/Cairo",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+      const formatted = formatter.format(new Date());
+      timeEl.textContent = `${formatted} (GMT+2)`;
+    } catch (e) {
+      timeEl.textContent = "GMT+2 Active";
+    }
+  }
+
+  updateTime();
+  setInterval(updateTime, 10000);
+}
+
+// ============================================================================
 // 11. INITIALIZE PAGE
 // ============================================================================
 async function bootstrapApp() {
@@ -907,7 +1429,7 @@ async function bootstrapApp() {
     });
   }
   document.addEventListener("keydown", (e) => {
-    if (!theaterModal || theaterModal.classList.contains("hidden")) return;
+    if (!theaterModal || !theaterModal.classList.contains("theater-modal-active")) return;
 
     if (e.key === "Escape") {
       closeTheater();
@@ -924,6 +1446,9 @@ async function bootstrapApp() {
   initHowIWorkStepper();
   initContactPills();
   initHeroTitleRotator();
+  initCairoClock();
+  initModalShare();
+  initScrollReveal();
 
   // Modal "Inquire about a video project →" link: closes player & glides to contact
   const modalInquireLink = document.getElementById("modal-inquire-link");
@@ -964,6 +1489,14 @@ async function bootstrapApp() {
     initGalleryFilters();
     renderGallery(videos, "All");
   }
+
+  // Check for direct video deep-link (?v=...)
+  handleDeepLinkParam();
+
+  // Re-check scroll reveal elements after dynamic video cards render
+  setTimeout(() => {
+    initScrollReveal();
+  }, 100);
 }
 
 if (document.readyState === "loading") {

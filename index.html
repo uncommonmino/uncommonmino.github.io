@@ -34,6 +34,35 @@
   <meta name="twitter:description" content="High-retention 9:16 reels, commercial spots, podcasts &amp; dynamic motion graphics." />
   <meta name="twitter:image" content="https://uncommonmino.github.io/assets/og-preview.png" />
 
+  <!-- Canonical URL & Google Fonts Preconnect (High-performance font loading) -->
+  <link rel="canonical" href="https://uncommonmino.github.io/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Schema.org Person Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Mina Magdy",
+    "jobTitle": "Video Editor & Creative Problem Solver",
+    "url": "https://uncommonmino.github.io/",
+    "sameAs": [
+      "https://www.instagram.com/minamagdy/",
+      "https://wa.me/201201506041"
+    ],
+    "knowsAbout": [
+      "Video Editing",
+      "Short-form Content",
+      "Commercial Ads",
+      "Adobe Premiere Pro",
+      "Adobe After Effects",
+      "DaVinci Resolve"
+    ]
+  }
+  </script>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -55,7 +84,7 @@
   </script>
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="css/style.css?v=2.7.0" />
+  <link rel="stylesheet" href="css/style.css?v=2.8.0" />
 </head>
 
 <body
@@ -64,7 +93,7 @@
   <!-- ========================================================================= -->
   <!-- TOP NAVIGATION BAR (Exact reference aesthetic) -->
   <!-- ========================================================================= -->
-  <header class="w-full max-w-5xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-4 flex items-center justify-between relative z-50">
+  <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-4 flex items-center justify-between relative z-50">
     <!-- Brand / Email Link -->
     <div class="flex items-center gap-2">
       <!-- Minimalist geometric logo mark -->
@@ -109,8 +138,7 @@
           class="px-3.5 py-2 text-xs font-medium text-neutral-600 hover:text-black hover:bg-neutral-50 rounded-xl transition-colors">Video
           Gallery</a>
         <a href="#featured-section"
-          class="px-3.5 py-2 text-xs font-medium text-neutral-600 hover:text-black hover:bg-neutral-50 rounded-xl transition-colors">Top
-          3 Featured</a>
+          class="px-3.5 py-2 text-xs font-medium text-neutral-600 hover:text-black hover:bg-neutral-50 rounded-xl transition-colors">Featured Productions</a>
         <a href="#how-i-work"
           class="px-3.5 py-2 text-xs font-medium text-neutral-600 hover:text-black hover:bg-neutral-50 rounded-xl transition-colors">How
           I Work</a>
@@ -172,13 +200,23 @@
           </span>
         </h1>
 
-        <!-- Primary CTA & Welcoming Subtext (Horizontal Pair) -->
-        <div class="hero-reveal-segment flex flex-col sm:flex-row sm:items-center gap-5 pt-3 w-full" style="--stagger: 8; display: flex;">
-          <a href="#contact" id="hero-book-call-btn"
-            class="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#111111] hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-95 duration-200">
-            Book a call
-          </a>
-          <p class="text-sm text-[#8E8E93] max-w-sm leading-relaxed">
+        <!-- Primary CTA Buttons & Welcoming Subtext -->
+        <div class="hero-reveal-segment flex flex-col gap-4 pt-3 w-full" style="--stagger: 8; display: flex;">
+          <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+            <a href="#contact" id="hero-book-call-btn"
+              class="inline-flex items-center justify-center px-8 py-3.5 rounded-full bg-[#111111] hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-95 duration-200">
+              Book a call
+            </a>
+
+            <a href="videos.html" id="hero-gallery-btn"
+              class="hero-gallery-btn group inline-flex items-center gap-2.5 px-6 py-3.5 rounded-full bg-white text-[#111111] text-sm font-semibold border border-black/10 shadow-xs hover:border-[#EB7A25] hover:text-[#EB7A25] hover:-translate-y-0.5 active:scale-95 transition-all duration-200">
+              <span>Explore Video Gallery</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-[#EB7A25]/10 text-[#EB7A25] text-xs font-bold tracking-tight" data-count-badge="cuts">14+ Cuts</span>
+              <span class="text-neutral-400 group-hover:text-[#EB7A25] group-hover:translate-x-0.5 transition-all">→</span>
+            </a>
+          </div>
+
+          <p class="text-sm text-[#8E8E93] max-w-md leading-relaxed">
             Feel free to explore my portfolio and reach out — I’d love to connect!
           </p>
         </div>
@@ -192,7 +230,7 @@
     <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
       <!-- CARD 1: My Experience (Timeline with vertical line & dots) -->
-      <div class="bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between">
+      <div class="bento-reveal bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between">
         <div>
           <span class="micro-pill mb-6">My Experience</span>
 
@@ -231,7 +269,7 @@
       </div>
 
       <!-- CARD 2: Selected Showreel / Reel Stack -->
-      <div class="bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between group cursor-pointer"
+      <div class="bento-reveal bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between group cursor-pointer"
         onclick="window.location.href='videos.html'">
         <div>
           <span class="micro-pill mb-4">Showreel &amp; Edits</span>
@@ -265,7 +303,7 @@
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs text-neutral-500 font-medium">
-          <span>Explore 15+ Cuts</span>
+          <span data-count-badge="cuts-explore">Explore 14+ Cuts</span>
           <span
             class="text-[#EB7A25] font-semibold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
             Open Gallery &rarr;
@@ -274,12 +312,12 @@
       </div>
 
       <!-- CARD 3: Editing Stack & Workflow (Bookshelf / Stack aesthetic) -->
-      <div class="bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between">
+      <div class="bento-reveal bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between">
         <div>
           <span class="micro-pill mb-4">Editing Toolkit</span>
 
           <div class="space-y-3 mt-2">
-            <div class="p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between">
+            <div class="tool-pill tool-pill-pr p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between cursor-default">
               <div class="flex items-center gap-2.5">
                 <span
                   class="w-7 h-7 rounded-lg bg-[#9999FF]/20 text-[#00005B] font-bold text-xs flex items-center justify-center">Pr</span>
@@ -288,7 +326,7 @@
               <span class="text-[10px] font-medium text-neutral-400">Pacing &amp; Assembly</span>
             </div>
 
-            <div class="p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between">
+            <div class="tool-pill tool-pill-ae p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between cursor-default">
               <div class="flex items-center gap-2.5">
                 <span
                   class="w-7 h-7 rounded-lg bg-[#D29BFD]/20 text-[#4D007D] font-bold text-xs flex items-center justify-center">Ae</span>
@@ -297,7 +335,7 @@
               <span class="text-[10px] font-medium text-neutral-400">Motion &amp; VFX</span>
             </div>
 
-            <div class="p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between">
+            <div class="tool-pill tool-pill-dv p-3 rounded-2xl bg-[#F7F7F5] border border-black/5 flex items-center justify-between cursor-default">
               <div class="flex items-center gap-2.5">
                 <span
                   class="w-7 h-7 rounded-lg bg-[#FFA114]/20 text-[#934B00] font-bold text-xs flex items-center justify-center">Dv</span>
@@ -317,57 +355,144 @@
       <!-- ROW 2: LOCATION MAP + "HOW I WORK" INTERACTIVE STEPPER -->
       <!-- ===================================================================== -->
 
-      <!-- CARD 4: Location Map (Minimalist vector map card like reference) -->
-      <div class="bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between">
-        <div>
-          <span class="micro-pill mb-4">Location</span>
+      <!-- CARD 4: Location Map (Minimalist vector map card with live Cairo time & radar pulse) -->
+      <div class="bento-reveal bento-card bento-card-hover p-6 sm:p-7 flex flex-col justify-between h-full group">
+        <!-- Top Micro Pill Row -->
+        <div class="flex items-center justify-between mb-3.5">
+          <span class="micro-pill">Location</span>
+          <span class="text-[10px] font-mono font-medium text-neutral-400 uppercase tracking-wider">Cairo, EG</span>
+        </div>
 
-          <div
-            class="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-[#EAEAEA] border border-black/5 flex items-center justify-center">
-            <!-- Stylized Minimal Map Graphic -->
-            <svg class="w-full h-full text-neutral-300 opacity-60" viewBox="0 0 300 200" fill="none">
-              <path d="M0,40 Q80,20 150,90 T300,120" stroke="currentColor" stroke-width="4" />
-              <path d="M40,0 Q90,120 180,140 T280,200" stroke="currentColor" stroke-width="3" />
-              <path d="M120,0 Q140,80 240,90" stroke="currentColor" stroke-width="2.5" />
-              <circle cx="150" cy="90" r="6" fill="#EB7A25" />
-              <circle cx="150" cy="90" r="14" stroke="#EB7A25" stroke-width="2" opacity="0.4" />
-            </svg>
+        <!-- Map Container (Fills All Vertical Space, Zero Dead Gap) -->
+        <div
+          class="location-map-container relative w-full flex-1 min-h-[195px] rounded-2xl overflow-hidden border border-black/5 flex items-center justify-center my-1 select-none shadow-inner">
+          <!-- Stylized Rich Minimal Vector Map -->
+          <svg class="w-full h-full absolute inset-0 select-none pointer-events-none" viewBox="0 0 320 220"
+            preserveAspectRatio="xMidYMid slice" fill="none">
+            <defs>
+              <pattern id="cairo-map-grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="rgba(17,17,17,0.035)" stroke-width="1" />
+                <circle cx="28" cy="28" r="0.75" fill="rgba(17,17,17,0.06)" />
+              </pattern>
+            </defs>
 
-            <div class="absolute bottom-3 left-4">
-              <p class="text-[10px] font-mono tracking-widest text-neutral-400">30.0444° N, 31.2357° E</p>
-              <p class="text-xs font-bold text-neutral-900 tracking-wider uppercase">CAIRO / REMOTE</p>
+            <!-- Warm Stone Base & Coordinate Grid -->
+            <rect width="100%" height="100%" fill="#EDECE8" />
+            <rect width="100%" height="100%" fill="url(#cairo-map-grid)" />
+
+            <!-- Nile River Curving Flow (Outer Ribbon + Inner Stream) -->
+            <path d="M 180 240 C 170 185, 195 135, 155 90 C 130 55, 140 25, 132 -20" stroke="#DDD9CF" stroke-width="16"
+              stroke-linecap="round" />
+            <path d="M 180 240 C 170 185, 195 135, 155 90 C 130 55, 140 25, 132 -20" stroke="#EAE7DF" stroke-width="8"
+              stroke-linecap="round" />
+            <!-- Zamalek / Gezira Island Silhouette -->
+            <path d="M 160 115 C 165 95, 155 75, 150 65 C 145 75, 155 95, 160 115 Z" fill="#DDD9CF" />
+
+            <!-- Arteries & Ring Road Road Network in Warm Stone Tones -->
+            <path d="M -10 170 Q 150 205 330 135" stroke="#DAD7CD" stroke-width="3" stroke-linecap="round" />
+            <path d="M -10 82 Q 150 95 330 65" stroke="#DAD7CD" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M 60 -10 Q 140 60 250 170 T 330 240" stroke="#E2DFD6" stroke-width="2" stroke-linecap="round" />
+            <path d="M 198 240 C 188 185, 212 135, 172 90 C 148 55, 158 25, 150 -20" stroke="#E2DFD6" stroke-width="1.6"
+              stroke-dasharray="6,4" />
+            <path d="M 162 240 C 152 185, 178 135, 138 90 C 112 55, 122 25, 114 -20" stroke="#E2DFD6" stroke-width="1.6" />
+            <path d="M 20 220 Q 100 130 80 -10" stroke="#E8E5DC" stroke-width="1.4" />
+            <path d="M -10 130 L 150 100 L 280 20" stroke="#E5E3DC" stroke-width="1.4" />
+            <path d="M 120 230 Q 160 160 290 80" stroke="#E8E5DC" stroke-width="1.2" />
+
+            <!-- Concentric Coordinate Range Rings -->
+            <circle cx="160" cy="88" r="32" fill="none" stroke="rgba(235,122,37,0.2)" stroke-width="1"
+              stroke-dasharray="3,3" />
+            <circle cx="160" cy="88" r="64" fill="none" stroke="rgba(17,17,17,0.06)" stroke-width="1"
+              stroke-dasharray="4,4" />
+            <circle cx="160" cy="88" r="98" fill="none" stroke="rgba(17,17,17,0.04)" stroke-width="1"
+              stroke-dasharray="5,5" />
+          </svg>
+
+          <!-- Radar Pulse & Center Location Pin -->
+          <div class="absolute top-[40%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
+            <span class="radar-ring-1 absolute w-10 h-10 rounded-full border-2 border-[#EB7A25] bg-[#EB7A25]/15"></span>
+            <span class="radar-ring-2 absolute w-10 h-10 rounded-full border border-[#EB7A25]/80 bg-[#EB7A25]/10"></span>
+            <div class="w-7 h-7 rounded-full bg-[#EB7A25]/20 flex items-center justify-center backdrop-blur-2xs">
+              <div class="w-3.5 h-3.5 rounded-full bg-[#EB7A25] ring-2 ring-white shadow-xs"></div>
             </div>
           </div>
-        </div>
 
-        <div class="mt-4 flex items-center justify-between text-xs text-neutral-500 font-medium">
-          <span>Worldwide Clients</span>
-          <span class="text-emerald-600 font-semibold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> GMT+2 Active
-          </span>
-        </div>
-      </div>
+          <!-- Compass North Marker -->
+          <div class="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-white/80 backdrop-blur-xs border border-white/80 text-[10px] font-mono text-neutral-400 flex items-center gap-1 shadow-2xs pointer-events-none">
+            <span class="font-bold text-neutral-600">N</span>
+            <svg class="w-2.5 h-2.5 text-[#EB7A25]" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12,2 17,21 12,16 7,21" />
+            </svg>
+          </div>
 
-      <!-- CARD 5: "How I Work" (Span 2 Columns, exact interactive stepper from reference image) -->
-      <div id="how-i-work" class="bento-card bento-card-hover p-6 sm:p-7 md:col-span-2 flex flex-col justify-between">
-        <div>
-          <span class="micro-pill mb-4">How I work</span>
-
-          <div class="mt-2 min-h-[90px]">
-            <h3 id="step-display-title"
-              class="text-lg sm:text-xl font-bold text-[#111111] transition-opacity duration-200">
-              01 Discovery &amp; Creative Brief
-            </h3>
-            <p id="step-display-text"
-              class="text-xs sm:text-sm text-[#8E8E93] mt-2 leading-relaxed transition-opacity duration-200 max-w-xl">
-              In the first stage, we dive deep into your raw footage, audience demographics, pacing benchmarks, and
-              target platforms to build a bulletproof narrative structure.
+          <!-- Sleek Floating Frosted-White Coordinates Badge -->
+          <div class="location-coord-badge absolute bottom-3 left-3 sm:bottom-3.5 sm:left-3.5 px-3 py-2 rounded-xl pointer-events-none z-10">
+            <p class="text-[9.5px] font-mono tracking-widest text-neutral-400 font-semibold leading-tight">30.0444° N, 31.2357° E</p>
+            <p class="text-xs font-bold text-neutral-900 tracking-wider uppercase mt-0.5 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
+              CAIRO / REMOTE
             </p>
           </div>
         </div>
 
+        <!-- Bottom Footer Row: Worldwide Clients + Live Cairo Time -->
+        <div class="mt-3.5 pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500 font-medium">
+          <span>Worldwide Clients</span>
+          <span id="cairo-clock-badge" class="text-emerald-600 font-semibold flex items-center gap-1.5 text-xs">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="cairo-live-time">05:42 AM (GMT+2)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- CARD 5: "How I Work" (Span 2 Columns, exact interactive stepper) -->
+      <div id="how-i-work" class="bento-reveal bento-card bento-card-hover p-6 sm:p-7 md:col-span-2 flex flex-col justify-between">
+        <div>
+          <span class="micro-pill mb-3">How I work</span>
+
+          <div class="mt-2 min-h-[90px]">
+            <h3 id="step-display-title"
+              class="font-bold text-[#111111] transition-opacity duration-200"
+              style="font-size: clamp(1.35rem, 2vw, 1.65rem);">
+              01 Discovery &amp; Creative Brief
+            </h3>
+            <p id="step-display-text"
+              class="text-neutral-500 mt-2 leading-relaxed transition-opacity duration-200"
+              style="font-size: 0.98rem; line-height: 1.65; max-width: 92%;">
+              In the first stage, we dive deep into your raw footage, target audience psychology, pacing benchmarks, and target platforms to build a bulletproof narrative structure.
+            </p>
+          </div>
+
+          <!-- Sleek Horizontal Step Progress Track -->
+          <div class="mt-5 mb-4">
+            <div class="flex items-center justify-between text-[11px] font-medium text-neutral-400 mb-1.5">
+              <span>Workflow Stage</span>
+              <span id="step-progress-percentage" class="text-[#EB7A25] font-semibold">20% Completed</span>
+            </div>
+            <div class="w-full h-1 bg-[#EBE9E2] rounded-full overflow-hidden">
+              <div id="step-progress-bar" class="h-full bg-[#EB7A25] rounded-full transition-all duration-400 ease-out" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <!-- Subtle Deliverable Tags/Pills Per Step -->
+          <div id="step-deliverables-container" class="flex flex-wrap items-center gap-2 mb-2 transition-opacity duration-200">
+            <span class="deliverable-tag px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 text-xs font-medium border border-neutral-200/60 inline-flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
+              Hook Strategy
+            </span>
+            <span class="deliverable-tag px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 text-xs font-medium border border-neutral-200/60 inline-flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
+              Audience Psychology
+            </span>
+            <span class="deliverable-tag px-2.5 py-1 rounded-lg bg-neutral-100 text-neutral-600 text-xs font-medium border border-neutral-200/60 inline-flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
+              Pacing Benchmarks
+            </span>
+          </div>
+        </div>
+
         <!-- Interactive Step Pills (Exact replica of Step 01 - Step 05) -->
-        <div class="pt-6 border-t border-neutral-100 flex flex-wrap gap-2">
+        <div class="pt-5 border-t border-neutral-100 flex flex-wrap gap-2 mt-4">
           <button type="button" class="step-tab active" data-step="1">Step 01</button>
           <button type="button" class="step-tab" data-step="2">Step 02</button>
           <button type="button" class="step-tab" data-step="3">Step 03</button>
@@ -379,10 +504,10 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- TOP 3 FEATURED VIDEOS SHOWCASE (Dynamically Populated from Firestore) -->
+    <!-- TOP FEATURED PRODUCTIONS (Interactive 3D Perspective Carousel)           -->
     <!-- ========================================================================= -->
-    <section id="featured-section" class="pt-8">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-7 gap-3">
+    <section id="featured-section" class="bento-reveal pt-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-7 gap-4">
         <div>
           <span class="micro-pill mb-2">Curated Showcase</span>
           <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-[#111111]">
@@ -393,29 +518,64 @@
           </p>
         </div>
 
-        <a href="videos.html"
-          class="inline-flex items-center gap-2 text-xs font-semibold text-[#111111] hover:text-[#EB7A25] transition-colors group">
-          <span>Explore All Videos</span>
-          <span
-            class="w-6 h-6 rounded-full bg-white border border-black/5 flex items-center justify-center group-hover:translate-x-1 transition-transform shadow-xs">
-            &rarr;
-          </span>
-        </a>
+        <!-- Controls: Upgraded Explore All Videos Pill + Carousel Nav Buttons -->
+        <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+          <!-- Upgraded Explore All Videos Pill -->
+          <a href="videos.html"
+            id="featured-explore-all-btn"
+            class="group inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full bg-white text-[#111111] text-xs font-semibold border border-black/10 shadow-xs hover:border-[#EB7A25] hover:text-[#EB7A25] hover:-translate-y-0.5 active:scale-95 transition-all duration-200">
+            <span class="w-2 h-2 rounded-full bg-[#EB7A25] badge-ping flex-shrink-0"></span>
+            <span>Full Gallery</span>
+            <span class="text-neutral-400 group-hover:text-[#EB7A25] font-normal" data-count-badge="videos">• 14 Videos</span>
+            <span class="w-5 h-5 rounded-full bg-neutral-100 group-hover:bg-[#EB7A25] group-hover:text-white flex items-center justify-center text-[11px] transition-colors">
+              &rarr;
+            </span>
+          </a>
+
+          <!-- Carousel Arrow Buttons -->
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              id="featured-prev-btn"
+              aria-label="Previous Project"
+              class="carousel-nav-btn w-9 h-9 rounded-full bg-white border border-black/10 text-neutral-700 hover:text-[#EB7A25] hover:border-[#EB7A25] hover:-translate-y-0.5 active:scale-90 flex items-center justify-center shadow-xs transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:border-black/10 disabled:hover:text-neutral-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              id="featured-next-btn"
+              aria-label="Next Project"
+              class="carousel-nav-btn w-9 h-9 rounded-full bg-white border border-black/10 text-neutral-700 hover:text-[#EB7A25] hover:border-[#EB7A25] hover:-translate-y-0.5 active:scale-90 flex items-center justify-center shadow-xs transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:border-black/10 disabled:hover:text-neutral-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- Top 3 Grid Container -->
-      <div id="featured-videos-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <!-- Rendered dynamically by app.js -->
-        <div class="bento-card p-8 col-span-full text-center text-neutral-400 text-sm">
-          Loading curated productions...
+      <!-- Carousel Stage with Exact Grid Alignment -->
+      <div class="carousel-stage relative overflow-hidden">
+        <div id="featured-videos-grid" class="carousel-track flex will-change-transform">
+          <!-- Rendered dynamically by app.js -->
+          <div class="bento-card p-8 w-full text-center text-neutral-400 text-sm">
+            Loading curated productions...
+          </div>
         </div>
+      </div>
+
+      <!-- Carousel Pagination Dots -->
+      <div id="featured-carousel-dots" class="flex items-center justify-center gap-2 mt-5">
+        <!-- Rendered dynamically by app.js -->
       </div>
     </section>
 
     <!-- ========================================================================= -->
     <!-- CONTACT BENTO CARD (Native Bento Architecture) -->
     <!-- ========================================================================= -->
-    <section id="contact" class="scroll-mt-10">
+    <section id="contact" class="bento-reveal scroll-mt-10">
       <div class="bento-card p-6 sm:p-8 md:p-10">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
 
@@ -548,11 +708,22 @@
           <h3 id="modal-video-title" class="text-base sm:text-lg font-bold text-white truncate max-w-md">Video Player
           </h3>
         </div>
-        <button id="modal-close-btn"
-          class="w-9 h-9 min-h-[36px] min-w-[36px] shrink-0 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white text-lg transition-colors cursor-pointer"
-          aria-label="Close video player">
-          &times;
-        </button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button id="modal-share-btn"
+            class="px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center gap-1.5 text-xs text-neutral-200 hover:text-white transition-all cursor-pointer"
+            title="Copy Direct Video Link" aria-label="Copy direct video link">
+            <svg class="w-3.5 h-3.5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span class="modal-share-label hidden sm:inline font-medium">Copy Link</span>
+          </button>
+          <button id="modal-close-btn"
+            class="w-9 h-9 min-h-[36px] min-w-[36px] shrink-0 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white text-lg transition-colors cursor-pointer"
+            aria-label="Close video player">
+            &times;
+          </button>
+        </div>
       </div>
 
       <!-- Modal Embed Content (Dynamic iframe or video) -->
@@ -565,10 +736,24 @@
         <!-- Injected dynamically -->
       </div>
 
-      <div class="modal-footer-wrapper flex justify-between items-center pt-2 text-xs text-neutral-400">
-        <span class="modal-desktop-hints">Click outside or press <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono">ESC</kbd> to
-          close • <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono">←</kbd> <kbd
-            class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono">→</kbd> to switch</span>
+      <div class="modal-footer-wrapper flex flex-col sm:flex-row justify-between items-center pt-2 gap-2 text-xs text-neutral-400">
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <span class="modal-desktop-hints">Click outside or <kbd class="px-1.5 py-0.5 rounded bg-white/10 text-[10px] font-mono">ESC</kbd> to close</span>
+          <span class="hidden sm:inline text-neutral-600">•</span>
+          <!-- Global Project Stepper Buttons -->
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="window.appStepModalProject(-1)"
+              class="modal-nav-pill flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full text-neutral-300 hover:text-white bg-white/5 hover:bg-white/15 transition-all cursor-pointer"
+              title="Previous Project (Left Arrow)">
+              <span>&larr; Prev</span>
+            </button>
+            <button type="button" onclick="window.appStepModalProject(1)"
+              class="modal-nav-pill flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full text-neutral-300 hover:text-white bg-white/5 hover:bg-white/15 transition-all cursor-pointer"
+              title="Next Project (Right Arrow)">
+              <span>Next &rarr;</span>
+            </button>
+          </div>
+        </div>
         <a href="videos.html" class="text-orange-400 hover:text-orange-300 font-medium transition-colors">View full video library &rarr;</a>
       </div>
 
@@ -579,10 +764,10 @@
   <!-- FOOTER -->
   <!-- ========================================================================= -->
   <footer
-    class="w-full max-w-5xl mx-auto px-6 py-10 mt-16 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
+    class="w-full max-w-6xl mx-auto px-6 py-10 mt-16 border-t border-black/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
     <div class="flex items-center gap-2">
       <span class="font-semibold text-neutral-800">Mina Magdy</span>
-      <span>&copy; 2025 • Video Editor &amp; Content Producer</span>
+      <span>&copy; 2026 • Video Editor &amp; Content Producer</span>
     </div>
 
     <div class="flex items-center gap-5">
@@ -594,7 +779,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script type="module" src="js/app.js?v=2.5.0"></script>
+  <script type="module" src="js/app.js?v=2.8.0"></script>
 </body>
 
 </html>

@@ -23,9 +23,9 @@ import {
   orderBy, 
   serverTimestamp,
   isConfigured
-} from "./firebase-config.js?v=2.1.0";
+} from "./firebase-config.js?v=2.8.0";
 
-import { parseVideoUrl } from "./videoParser.js?v=2.1.0";
+import { parseVideoUrl } from "./videoParser.js?v=2.8.0";
 
 // ============================================================================
 // STATE
@@ -68,6 +68,7 @@ const inputOrder = document.getElementById("video-order");
 const inputClientName = document.getElementById("video-client-name");
 const inputClientOrder = document.getElementById("video-client-order");
 const inputFeatured = document.getElementById("video-featured");
+const inputFeaturedOrder = document.getElementById("video-featured-order");
 const inputDesc = document.getElementById("video-desc");
 const formNotice = document.getElementById("form-notice");
 const batchModeToggle = document.getElementById("batch-mode-toggle");
@@ -97,7 +98,9 @@ const previewDesc = document.getElementById("preview-desc");
 const videosTableBody = document.getElementById("admin-videos-table-body");
 const totalVideosCountEl = document.getElementById("stat-total-videos");
 const featuredVideosCountEl = document.getElementById("stat-featured-videos");
+const statFeaturedSub = document.getElementById("stat-featured-sub");
 const featuredWarningBadge = document.getElementById("stat-featured-warning");
+const carouselPinnedStrip = document.getElementById("carousel-pinned-strip");
 
 // Table Search, Dynamic Filters & Backup
 const adminTableSearch = document.getElementById("admin-table-search");
@@ -304,19 +307,51 @@ function updateStats(videos) {
   const featured = videos.filter(v => v.isFeatured === true || v.isFeatured === "true").length;
 
   if (totalVideosCountEl) totalVideosCountEl.textContent = total;
-  if (featuredVideosCountEl) featuredVideosCountEl.textContent = `${featured} / 3`;
+  if (featuredVideosCountEl) featuredVideosCountEl.textContent = `${featured} Pinned`;
+
+  if (statFeaturedSub) {
+    statFeaturedSub.textContent = `${featured} Pinned First • ${total} Total Videos`;
+  }
 
   if (featuredWarningBadge) {
-    if (featured > 3) {
-      featuredWarningBadge.textContent = `Warning: ${featured} videos are marked as Featured! Best practice is exactly 3 for the Bento layout.`;
-      featuredWarningBadge.classList.remove("hidden");
-    } else if (featured < 3) {
-      featuredWarningBadge.textContent = `Tip: ${featured} of 3 featured slots are used. Mark ${3 - featured} more to complete the Top 3 Landing Showcase.`;
-      featuredWarningBadge.classList.remove("hidden");
-    } else {
-      featuredWarningBadge.classList.add("hidden");
-    }
+    featuredWarningBadge.classList.add("hidden");
   }
+
+  renderCarouselPinnedStrip(videos);
+}
+
+function renderCarouselPinnedStrip(videos) {
+  if (!carouselPinnedStrip) return;
+
+  const pinned = videos
+    .filter(v => v.isFeatured === true || v.isFeatured === "true")
+    .sort((a, b) => (Number(a.featuredOrder) || 99) - (Number(b.featuredOrder) || 99));
+
+  if (pinned.length === 0) {
+    carouselPinnedStrip.innerHTML = `
+      <div class="text-[11px] text-neutral-400 italic py-1 flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-neutral-300"></span>
+        No cards pinned to front of carousel yet. Click "+ Pin" on any video below to set its carousel priority sequence.
+      </div>
+    `;
+    return;
+  }
+
+  carouselPinnedStrip.innerHTML = `
+    <div class="flex items-center gap-2 flex-wrap w-full py-1">
+      <span class="text-[11px] font-bold text-neutral-700 flex items-center gap-1.5 mr-1">
+        <span class="w-2 h-2 rounded-full bg-[#EB7A25]"></span>
+        Carousel Front Queue (${pinned.length}):
+      </span>
+      ${pinned.map((v, i) => `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200/80 text-[11px] text-neutral-800 font-medium shadow-2xs">
+          <span class="font-bold text-[#EB7A25] font-mono">#${v.featuredOrder || (i + 1)}</span>
+          <span class="truncate max-w-[130px] font-semibold">${v.clientName || v.title}</span>
+          <button type="button" onclick="window.adminToggleFeatured('${v.id}', false)" title="Unpin from carousel front" class="text-neutral-400 hover:text-rose-600 cursor-pointer ml-0.5 text-xs font-bold leading-none">×</button>
+        </span>
+      `).join("")}
+    </div>
+  `;
 }
 
 // ============================================================================
@@ -557,7 +592,7 @@ export function updateLiveFormPreview() {
   const url = inputUrl ? inputUrl.value.trim() : "";
   const thumb = inputThumb ? inputThumb.value.trim() : "";
   const category = inputCategory ? inputCategory.value : "Commercials & Ads";
-  const aspect = inputAspect ? inputAspect.value : "16:9";
+  const aspect = inputAspect ? inputAspect.value : "9:16";
   const clientName = inputClientName ? inputClientName.value.trim() : "";
   const desc = inputDesc ? inputDesc.value.trim() : "";
 
@@ -668,25 +703,25 @@ export function initVideoForm() {
     const duration = inputDuration.value.trim();
     const order = Number(inputOrder.value) || 1;
     const isFeatured = inputFeatured.checked;
+    let featuredOrder = null;
+    if (isFeatured) {
+      if (inputFeaturedOrder && inputFeaturedOrder.value) {
+        featuredOrder = Number(inputFeaturedOrder.value) || 1;
+      } else {
+        const currentFeatured = videosList.filter(v => (v.isFeatured === true || v.isFeatured === "true") && v.id !== editingVideoId);
+        let maxRank = 0;
+        currentFeatured.forEach(v => {
+          const r = Number(v.featuredOrder);
+          if (!isNaN(r) && r > maxRank) maxRank = r;
+        });
+        featuredOrder = maxRank + 1;
+      }
+    }
     const description = inputDesc.value.trim();
 
     if (!title || !videoUrl) {
       showNotice("Please fill in both Video Title and Video URL.", "error");
       return;
-    }
-
-    // Check Featured Limit Warning
-    if (isFeatured) {
-      const currentlyFeatured = videosList.filter(v => 
-        (v.isFeatured === true || v.isFeatured === "true") && v.id !== editingVideoId
-      ).length;
-
-      if (currentlyFeatured >= 3) {
-        const proceed = confirm(
-          `Notice: You already have ${currentlyFeatured} videos featured on the Landing Page. Adding another featured video will push the total to ${currentlyFeatured + 1}. Proceed anyway?`
-        );
-        if (!proceed) return;
-      }
     }
 
     // Auto-extract thumbnail if left empty
@@ -709,6 +744,7 @@ export function initVideoForm() {
       duration,
       order,
       isFeatured,
+      featuredOrder,
       description,
       isVisible: true,
       updatedAt: serverTimestamp()
@@ -787,8 +823,9 @@ export function resetVideoForm() {
 
   if (inputClientName) inputClientName.value = "";
   if (inputClientOrder) inputClientOrder.value = "1";
-  if (inputAspect) inputAspect.value = "16:9";
+  if (inputAspect) inputAspect.value = "9:16";
   if (inputOrder) inputOrder.value = (videosList.length + 1).toString();
+  if (inputFeaturedOrder) inputFeaturedOrder.value = "";
 
   renderClientPickerPills();
   updateLiveFormPreview();
@@ -919,20 +956,23 @@ function renderFilteredVideos() {
     return `
       <tr class="border-b border-neutral-100 hover:bg-neutral-50/70 transition-colors ${!isVisible ? 'opacity-60 bg-neutral-50/40' : ''}">
         <!-- Thumbnail & Title -->
-        <td class="px-6 py-4 flex items-center gap-3">
-          <img src="${thumb}" alt="" class="w-14 h-9 object-cover rounded-lg shadow-xs bg-neutral-900 flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=400&q=80'">
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-neutral-900 truncate max-w-xs">${v.title}</p>
-            <p class="text-xs text-neutral-400 truncate max-w-xs">${v.videoUrl}</p>
+        <td class="px-4 py-3">
+          <div class="flex items-center gap-2.5 max-w-[260px]">
+            <img src="${thumb}" alt="" class="w-12 h-8 object-cover rounded-md shadow-xs bg-neutral-900 flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=400&q=80'">
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold text-neutral-900 truncate" title="${v.title}">${v.title}</p>
+              <a href="${v.videoUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-neutral-400 hover:text-[#EB7A25] truncate block max-w-[190px] transition-colors" title="${v.videoUrl}">${v.videoUrl}</a>
+            </div>
           </div>
         </td>
 
         <!-- Client Series -->
-        <td class="px-6 py-4 text-xs">
+        <td class="px-3 py-3 text-xs whitespace-nowrap">
           ${v.clientName ? `
-            <span class="micro-pill font-medium">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25]"></span>
-              ${v.clientName} <span class="text-neutral-400 font-mono text-[10px]">#${String(v.clientOrder || 1).padStart(2, '0')}</span>
+            <span class="micro-pill font-medium max-w-[140px] truncate inline-flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EB7A25] shrink-0"></span>
+              <span class="truncate">${v.clientName}</span>
+              <span class="text-neutral-400 font-mono text-[10px] shrink-0">#${String(v.clientOrder || 1).padStart(2, '0')}</span>
             </span>
           ` : `
             <span class="text-neutral-400 text-xs italic">Standalone</span>
@@ -940,40 +980,40 @@ function renderFilteredVideos() {
         </td>
 
         <!-- Category -->
-        <td class="px-6 py-4 text-xs font-medium text-neutral-600">
-          <span class="micro-pill">${v.category || 'Production'}</span>
+        <td class="px-3 py-3 text-xs font-medium text-neutral-600 whitespace-nowrap">
+          <span class="micro-pill max-w-[130px] truncate inline-block">${(v.category || 'Production').replace(/\s*\([^)]*\)/g, '').trim()}</span>
         </td>
 
         <!-- Aspect -->
-        <td class="px-6 py-4 text-xs text-neutral-500 font-mono">
-          ${v.aspectRatio || '16:9'}
+        <td class="px-2 py-3 text-xs text-neutral-500 font-mono text-center whitespace-nowrap">
+          <span class="px-1.5 py-0.5 rounded bg-neutral-100 text-[10px] font-semibold">${v.aspectRatio || '9:16'}</span>
         </td>
 
         <!-- Order with Quick Swap Buttons -->
-        <td class="px-6 py-4 text-xs font-semibold text-neutral-700">
-          <div class="flex items-center gap-1.5">
-            <span class="font-mono">${v.order || (idx + 1)}</span>
+        <td class="px-3 py-3 text-xs font-semibold text-neutral-700 whitespace-nowrap text-center">
+          <div class="inline-flex items-center justify-center gap-1">
+            <span class="font-mono text-xs w-5 text-center">${v.order || (idx + 1)}</span>
             <div class="inline-flex flex-col gap-0.5">
               <button 
                 type="button" 
                 onclick="window.adminSwapOrder('${v.id}', -1)" 
                 title="Move Up" 
                 class="p-0.5 rounded hover:bg-neutral-200 text-neutral-500 hover:text-black transition-colors cursor-pointer">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
               </button>
               <button 
                 type="button" 
                 onclick="window.adminSwapOrder('${v.id}', 1)" 
                 title="Move Down" 
                 class="p-0.5 rounded hover:bg-neutral-200 text-neutral-500 hover:text-black transition-colors cursor-pointer">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
               </button>
             </div>
           </div>
         </td>
 
         <!-- Visibility Toggle -->
-        <td class="px-6 py-4">
+        <td class="px-3 py-3 text-center whitespace-nowrap">
           <button 
             type="button" 
             onclick="window.adminToggleVisibility('${v.id}', ${!isVisible})"
@@ -986,32 +1026,57 @@ function renderFilteredVideos() {
           </button>
         </td>
 
-        <!-- Featured Toggle (One-Click) -->
-        <td class="px-6 py-4">
-          <button 
-            type="button" 
-            onclick="window.adminToggleFeatured('${v.id}', ${!isFeatured})"
-            class="px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-              isFeatured 
-                ? 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200' 
-                : 'bg-neutral-100 text-neutral-400 hover:bg-neutral-200'
-            }">
-            ${isFeatured ? '★ Featured (Top 3)' : '☆ Normal'}
-          </button>
+        <!-- Carousel Rank / Priority Toggle & Order -->
+        <td class="px-3 py-3 text-center whitespace-nowrap">
+          ${isFeatured ? `
+            <div class="inline-flex items-center gap-1">
+              <button 
+                type="button" 
+                onclick="window.adminToggleFeatured('${v.id}', false)"
+                title="Click to unpin from carousel front"
+                class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200 transition-all cursor-pointer">
+                ★ #${v.featuredOrder || (idx + 1)}
+              </button>
+              <div class="inline-flex flex-col gap-0.5">
+                <button 
+                  type="button" 
+                  onclick="window.adminAdjustFeaturedRank('${v.id}', -1)" 
+                  title="Higher Priority (Rank Up)" 
+                  class="p-0.5 rounded hover:bg-neutral-200 text-neutral-500 hover:text-black transition-colors cursor-pointer">
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button 
+                  type="button" 
+                  onclick="window.adminAdjustFeaturedRank('${v.id}', 1)" 
+                  title="Lower Priority (Rank Down)" 
+                  class="p-0.5 rounded hover:bg-neutral-200 text-neutral-500 hover:text-black transition-colors cursor-pointer">
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+              </div>
+            </div>
+          ` : `
+            <button 
+              type="button" 
+              onclick="window.adminToggleFeatured('${v.id}', true)"
+              title="Pin to front of landing page carousel"
+              class="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F6] text-neutral-600 border border-black/5 hover:bg-neutral-200 hover:text-black transition-all cursor-pointer">
+              + Pin
+            </button>
+          `}
         </td>
 
         <!-- Actions -->
-        <td class="px-6 py-4 text-right space-x-2">
+        <td class="px-4 py-3 text-right whitespace-nowrap space-x-1">
           <button 
             type="button" 
             onclick="window.adminEditVideo('${v.id}')"
-            class="px-2.5 py-1 text-xs font-medium text-neutral-700 hover:text-black hover:bg-neutral-100 rounded-md transition-colors cursor-pointer">
+            class="px-2 py-1 text-xs font-semibold text-neutral-700 hover:text-black hover:bg-neutral-100 rounded-md transition-colors cursor-pointer">
             Edit
           </button>
           <button 
             type="button" 
             onclick="window.adminDeleteVideo('${v.id}')"
-            class="px-2.5 py-1 text-xs font-medium text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-md transition-colors cursor-pointer">
+            class="px-2 py-1 text-xs font-semibold text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-md transition-colors cursor-pointer">
             Delete
           </button>
         </td>
@@ -1039,10 +1104,13 @@ export function editVideo(id) {
   if (inputClientName) inputClientName.value = v.clientName || "";
   if (inputClientOrder) inputClientOrder.value = v.clientOrder || 1;
   inputCategory.value = v.category || "Commercials & Ads";
-  inputAspect.value = v.aspectRatio || "16:9";
+  inputAspect.value = v.aspectRatio || "9:16";
   inputDuration.value = v.duration || "";
   inputOrder.value = v.order || 1;
   inputFeatured.checked = (v.isFeatured === true || v.isFeatured === "true");
+  if (inputFeaturedOrder) {
+    inputFeaturedOrder.value = (v.featuredOrder !== undefined && v.featuredOrder !== null) ? v.featuredOrder : "";
+  }
   inputDesc.value = v.description || "";
 
   renderClientPickerPills();
@@ -1071,28 +1139,69 @@ export async function toggleVisibility(id, newStatus) {
 export async function toggleFeatured(id, newStatus) {
   if (!db) return;
 
-  if (newStatus) {
-    const currentlyFeatured = videosList.filter(v => 
-      (v.isFeatured === true || v.isFeatured === "true") && v.id !== id
-    ).length;
-
-    if (currentlyFeatured >= 3) {
-      const proceed = confirm(
-        `You currently have ${currentlyFeatured} featured videos. Featuring this one will make it ${currentlyFeatured + 1}. Continue?`
-      );
-      if (!proceed) return;
-    }
-  }
+  const v = videosList.find(item => item.id === id);
+  const title = v ? v.title : "Video";
 
   try {
-    await updateDoc(doc(db, "videos", id), {
+    const payload = {
       isFeatured: newStatus,
       updatedAt: serverTimestamp()
-    });
+    };
+
+    if (newStatus) {
+      const currentFeatured = videosList.filter(item => (item.isFeatured === true || item.isFeatured === "true"));
+      let maxRank = 0;
+      currentFeatured.forEach(item => {
+        const r = Number(item.featuredOrder);
+        if (!isNaN(r) && r > maxRank) maxRank = r;
+      });
+      payload.featuredOrder = maxRank + 1;
+    } else {
+      payload.featuredOrder = null;
+    }
+
+    await updateDoc(doc(db, "videos", id), payload);
+    showNotice(`"${title}" is now ${newStatus ? 'Pinned to front of Landing Page Carousel' : 'Unpinned from front'}.`, "success");
     await fetchAdminVideos();
   } catch (err) {
     console.error("Toggle featured error:", err);
     showNotice("Failed to update featured status: " + err.message, "error");
+  }
+}
+
+export async function adjustFeaturedRank(id, delta) {
+  if (!db) return;
+  const currentVid = videosList.find(v => v.id === id);
+  if (!currentVid) return;
+
+  const featuredVids = videosList
+    .filter(v => (v.isFeatured === true || v.isFeatured === "true"))
+    .sort((a, b) => (Number(a.featuredOrder) || 99) - (Number(b.featuredOrder) || 99));
+
+  const currentIdx = featuredVids.findIndex(v => v.id === id);
+  if (currentIdx === -1) return;
+
+  const targetIdx = currentIdx + delta;
+  if (targetIdx < 0 || targetIdx >= featuredVids.length) return;
+
+  const targetVid = featuredVids[targetIdx];
+
+  let currentRank = Number(currentVid.featuredOrder) || (currentIdx + 1);
+  let targetRank = Number(targetVid.featuredOrder) || (targetIdx + 1);
+
+  if (currentRank === targetRank) {
+    targetRank = currentRank + delta;
+  }
+
+  try {
+    await Promise.all([
+      updateDoc(doc(db, "videos", currentVid.id), { featuredOrder: targetRank, updatedAt: serverTimestamp() }),
+      updateDoc(doc(db, "videos", targetVid.id), { featuredOrder: currentRank, updatedAt: serverTimestamp() })
+    ]);
+    await fetchAdminVideos();
+  } catch (err) {
+    console.error("Adjust featured rank error:", err);
+    showNotice("Failed to adjust rank: " + err.message, "error");
   }
 }
 
@@ -1250,14 +1359,10 @@ function initBackupAndSeed() {
         return;
       }
 
-      const confirmPrompt = prompt(
-        `DANGER: You are about to permanently delete all ${videosList.length} videos from Firestore!\n\nTo confirm, type "DELETE" below:`
-      );
+      const confirmation = prompt("Type DELETE to wipe all videos from Firestore:");
 
-      if (confirmPrompt !== "DELETE") {
-        if (confirmPrompt !== null) {
-          alert("Clear operation cancelled. You must type 'DELETE' in all caps to confirm.");
-        }
+      if (confirmation !== "DELETE") {
+        showNotice("Clear operation cancelled. Database untouched.", "info");
         return;
       }
 
@@ -1316,6 +1421,7 @@ function showNotice(text, type = "info") {
 window.handleAdminLogin = handleLoginSubmit;
 window.adminEditVideo = editVideo;
 window.adminToggleFeatured = toggleFeatured;
+window.adminAdjustFeaturedRank = adjustFeaturedRank;
 window.adminToggleVisibility = toggleVisibility;
 window.adminSwapOrder = swapOrder;
 window.adminDeleteVideo = deleteVideo;
